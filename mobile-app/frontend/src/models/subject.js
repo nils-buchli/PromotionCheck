@@ -1,7 +1,9 @@
 export class Subject {
-    constructor({id, name, yearId}) {
+    constructor({id, name, weight, yearId, hasSubSubject=false}) {
         this.id = id
         this.name = name
-        this.yearId = yearId
+        this.weight = weight
+        this.yearId = yearId, 
+        this.hasSubSubject = hasSubSubject
     }
 }

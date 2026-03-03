@@ -1,5 +1,11 @@
 {
   "appId": "com.pluspoints.app",
   "appName": "PlusPoints",
-  "webDir": "dist"
+  "webDir": "dist", 
+  "server": {
+    "url": "http://10.102.229.140:5000", 
+    "cleartext": true
+  }
 }
+
+

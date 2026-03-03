@@ -1,5 +1,5 @@
 <template>
-    <ElementList element-type="subject" :addr-id="addrId"/>
+    <ElementList element-type="subject" :addr-id="props.yearId"/>
 </template>
 
 <script setup>
@@ -11,8 +11,6 @@
             required: true
         }
     })
-
-    const addrId = props.yearId
 </script>
     
     
