@@ -74,14 +74,18 @@ export const useSubjectStore = defineStore('subjectStore', {
         async loadSubjects() {
             const subjects = await db.getSubjects()
 
+            this.subjects = subjects.map(s => new Subject({
+                id: s['id'], 
+                name: s['title'], 
+                weight: s['weight'], 
+                yearId: s['year_id'], 
+                hasSubSubject: s['has_sub_subjects']
+            }))
+            
             for (const s of subjects) {
-                this.subjects.push(new Subject({
-                    id: s['id'], 
-                    name: s['title'], 
-                    weight: s['weight'], 
-                    yearId: s['year_id'], 
-                    hasSubSubject: s['has_sub_subjects']
-                }))
+                if (!(s.id in this.subjectsById)) {
+                    this.subjects.push()
+                }
             }
         },    
         async addSubject(subjectName, subjectWeight, subjectYearId, subjectHasSubSubject) {
@@ -115,21 +119,17 @@ export const useSubjectStore = defineStore('subjectStore', {
             return map 
         },
         async removeSubjectsById(ids) {
-            const gradeStore = useGradeStore()
-            const subSubjectStore = useSubSubjectStore()
-            
-            await db.removeElements(ids, 'subjects')
+            await db.removeElements(ids, 'subjects', trigger_sync)
             
             this.subjects = this.subjects.filter(s => !ids.has(s.id))
-            gradeStore.removeGradesBySubjectIds(ids)
-            subSubjectStore.removeSubSubjectsBySubjectId(ids)
         }, 
-        async removeSubjectsByYearId(ids) {
-            await this.removeSubjectsById(new Set(this.subjects.filter(s => {
-                if (ids.has(s.yearId)) {
-                    return s.id
-                }
-            })))
+        async editSubjectById(id, data) {
+            const idx = this.subjects.findIndex(s => s.id === id)
+            if (idx > -1) {
+                this.subjects[idx] = {...this.subjects[idx], ...data}
+            }
+
+            await db.editElement(id, {'title': data.name, 'weight': data.weight}, 'subjects')
         }
     }
 })

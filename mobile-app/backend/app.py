@@ -1,14 +1,15 @@
 import os
 import mimetypes
 import uuid
-from flask import Flask, jsonify, send_from_directory, request
+from flask import Flask, jsonify, send_from_directory, request, session
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
-from flask_jwt_extended import JWTManager
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, JWTManager, decode_token as jwt_decode_token, get_jwt
 from datetime import timedelta
 from sqlalchemy import or_
+from flask_socketio import SocketIO, emit, join_room, rooms, disconnect
+import redis
 
 # Inits
 mimetypes.add_type("application/wasm", ".wasm")
@@ -20,6 +21,20 @@ app = Flask(__name__, static_folder=DIST_DIR, static_url_path="/")
 
 CORS(app, supports_credentials=True)
 
+socketio = SocketIO(app, path='/socket.io', cors_allowed_origins="*")
+
+redis_client = redis.Redis(
+    host="127.0.0.1", 
+    port=6379, 
+    db=0, 
+    decode_responses=True
+)
+
+if redis_client.ping(): 
+    print("REDIS: Client online.")
+else : 
+    print("REDIS: Client offline.")
+
 with open("dbpasswd.txt") as file: 
     DB_PASSWORD = file.read()
 
@@ -30,6 +45,7 @@ with open("jwtsecretkey.txt") as file:
     JWT_KEY = file.read()
 
 app.config["JWT_SECRET_KEY"] = JWT_KEY
+app.config["SECRET_KEY"] = JWT_KEY
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(days=14)
 
 db = SQLAlchemy(app)
@@ -151,6 +167,59 @@ def spa_file(path):
 
     return send_from_directory(DIST_DIR, "index.html")
 
+def trigger_sync(usr_id, exclusive_device_id): 
+    all_devices = redis_client.smembers(f"user_devices:{usr_id}")
+
+    for device_id in all_devices: 
+        if device_id != exclusive_device_id: 
+            room_name = f"{usr_id}:{device_id}"
+            print(f"SOCKET: Trigger sync for room {room_name}.")
+            
+            socketio.emit("sync_required", {}, room=room_name)
+
+def decode_token(token): 
+    if token.startswith('Bearer '):
+        token = token[7:]
+    
+    return jwt_decode_token(token)
+
+#socket
+@socketio.on("connect")
+def handle_connect(auth): 
+    if not auth: 
+        print(f"SOCKET: Missing auth.")
+        return False
+    
+    token = auth.get("token")
+    if not token:   
+        print(f"SOCKET: Missing token.")
+        return False 
+    
+    decoded = decode_token(token)
+    usr_id = decoded["sub"]
+    device_id = decoded.get("device_id")
+
+    redis_client.sadd(f"user_devices:{usr_id}", device_id)
+
+    if not User.query.filter_by(id=usr_id).first(): 
+        print(f"SOCKET: User {usr_id} does not exist.")
+    
+    join_room(f"{usr_id}:{device_id}")
+    join_room(f"{usr_id}")
+
+    print(f"SOCKET: User {usr_id} connected.")
+    return True
+
+@socketio.on("disconnect")
+def handel_disconnect(): 
+    token = request.args.get('token')
+    if token:
+        decoded = decode_token(token)
+        usr_id = decoded["sub"]
+        device_id = decoded.get("device_id")
+        
+        redis_client.srem(f"user_devices:{usr_id}", device_id)
+
 # Routes
 @app.route("/api/hello-world")
 def hello_world():
@@ -169,7 +238,9 @@ def register():
             db.session.add(new_user)
             db.session.commit()
             print(f"DB: Added user {new_user}.")
-            return {"success": True, "access_token": create_access_token(identity=usr_id)}
+            
+            device_id = str(uuid.uuid4())
+            return {"success": True, "access_token": create_access_token(identity=usr_id, additional_claims={"device_id": device_id}), "device_id": device_id}
         else: 
             return {"success": False, "msg": "usrNameAlreadyTaken"}
     else: 
@@ -188,9 +259,18 @@ def login():
             user = User.query.filter_by(name=usr_name).first()
 
             if user: 
-                if check_password_hash(user.password, usr_password): 
+                if check_password_hash(user.password, usr_password):  
                     print(f"WEB_APP: User {user} logged in.")
-                    return {"success": True, "access_token": create_access_token(identity=user.id)} 
+                    
+                    device_id = uuid.uuid4()
+                    return {
+                        "success": True, 
+                        "access_token": create_access_token(
+                            identity=user.id, 
+                            additional_claims={"device_id": device_id}
+                        ), 
+                        "device_id": device_id
+                    } 
                 else: 
                     return {"success": False, "msg": "noPasswordMatch"}
             else: 
@@ -210,11 +290,13 @@ def me():
     else: 
         print("WARNING: Invalid token.")
         return {"success": False, "msg": "userNotFound"}
-    
+
+# year route    
 @app.route("/api/years", methods=["GET", "POST", "PUT", "DELETE"])
 @jwt_required()
 def years(): 
     usr_id = get_jwt_identity()
+    device_id = get_jwt().get("device_id")
     
     if request.method == "GET": 
         years = Year.query.join(YearMap, Year.id == YearMap.year_id).filter(YearMap.user_id == usr_id).all()
@@ -240,6 +322,7 @@ def years():
         ))
         db.session.commit()
 
+        trigger_sync(usr_id, exclusive_device_id=device_id)
         return {"success": True}
     
     else: 
@@ -249,34 +332,42 @@ def years():
         if not year_ids: 
             return {"success": False, "msg": "invalidInput"}
         
-        year_map_records = YearMap.query.filter(YearMap.year_id.in_(year_ids)).all()   
+        invalid_year_maps = YearMap.query.filter(YearMap.year_id.in_(year_ids)).filter(YearMap.user_id != usr_id).all()
 
-        if len(year_ids) != len(year_map_records) or not all([ym.user_id == usr_id for ym in year_map_records]): 
+        if invalid_year_maps: 
             return {"success": False, "msg": "permissionDenied"}
 
         if request.method == "PUT": 
             if len(year_ids) != 1 or not years_data.get("data"): 
                 return {"success": False, "msg": "invalidInput"}
-
-            year = Year.query.filter(Year.id.in_(year_ids)).first()
-            year.title = years_data.get("data").get("title", year.title)
+        
+            u_data = years_data.get("data")
+            Year.query.filter(Year.id.in_(year_ids)).update({'title': u_data.get("title")}, synchronize_session=False)
+            
             db.session.commit()
-
+            
+            trigger_sync(usr_id, exclusive_device_id=device_id)
             return {"success": True} 
         
         else: 
-            years = Year.query.filter(Year.id.in_(year_ids)).all()
+            subject_ids = [s[0] for s in db.session.query(Subject.id).filter(Subject.year_id.in_(year_ids)).all()]
+            sub_subject_ids = [s[0] for s in db.session.query(SubSubject.id).filter(SubSubject.subject_id.in_(subject_ids)).all()]
+            
+            Year.query.filter(Year.id.in_(year_ids)).update({"deleted": True}, synchronize_session=False)
+            Subject.query.filter(Subject.id.in_(subject_ids)).update({"deleted": True}, synchronize_session=False)
+            SubSubject.query.filter(SubSubject.id.in_(sub_subject_ids)).update({"deleted": True}, synchronize_session=False)
+            Grade.query.filter(or_(Grade.id.in_(subject_ids), Grade.id.in_(sub_subject_ids))).update({"deleted": True}, synchronize_session=False)
 
-            for y in years: 
-                y.deleted = True
             db.session.commit() 
 
+            trigger_sync(usr_id, exclusive_device_id=device_id)
             return {"success": True}
 
 @app.route("/api/subjects", methods=["GET", "POST", "PUT", "DELETE"])
 @jwt_required()
 def subjects(): 
     usr_id = get_jwt_identity()
+    device_id = get_jwt().get("device_id")
 
     if request.method == "GET": 
         subjects = Subject.query.join(Year, Year.id == Subject.year_id).join(YearMap, Year.id == YearMap.year_id).filter_by(user_id=usr_id).all()
@@ -302,6 +393,7 @@ def subjects():
         ))
         db.session.commit()
 
+        trigger_sync(usr_id, exclusive_device_id=device_id)
         return {"success": True}
     
     else: 
@@ -311,31 +403,44 @@ def subjects():
         if not subject_ids: 
             return {"success": False, "msg": "invalidInput"}
         
-        subject_records = Subject.query.filter(Subject.id.in_(subject_ids)).join(Year, Year.id == Subject.year_id).join(YearMap, Year.id == YearMap.year_id).where(YearMap.user_id == usr_id).all()
+        invalid_subjects = Subject.query.filter(Subject.id.in_(subject_ids)).join(Year, Year.id == Subject.year_id).join(YearMap, Year.id == YearMap.year_id).filter(YearMap.user_id != usr_id).all()
+        
+        if invalid_subjects: 
+            return {"success": False, "msg": "permissionDenied"}
         
         if request.method == "PUT": 
             if len(subject_ids) != 1 or not subject_data.get("data"): 
                 return {"success": False, "msg": "invalidInput"}
             
-            subject = subject_records[0]
-            subject.title = subjects_data.get("data").get("title", subject.title)
-            subject.weight = subjects_data.get("data").get("weight", subject.weight)
-            subject.has_sub_subject = subjects_data.get("data").get("has_sub_subject", subject.has_sub_subject)
+            u_data = subjects_data.get("data")
+            Subject.query.filter(Subject.id.in_(subject_ids)).update({
+                "title": u_data.get("title"), 
+                "weight": u_data.get("weight"), 
+                "has_sub_subjects": u_data.get("has_sub_subject")
+            }, synchronize_session=False)
+
             db.session.commit()
             
+            trigger_sync(usr_id, exclusive_device_id=device_id)
             return {"success": True}
         
         else:        
-            for s in subject_records: 
-                s.deleted = True
+            sub_subject_ids = db.session.query(SubSubject.id).filter(SubSubject.id.in_(subject_ids)).all()
+
+            Subject.query.filter(Subject.id.in_(subject_ids)).update({"deleted": True}, synchronize_session=False)
+            SubSubject.query.filter(SubSubject.id.in_(sub_subject_ids)).update({"deleted": True}, synchronize_session=False)
+            Grade.query.filter(or_(Grade.subject_id.in_(subject_ids), Grade.subject_id.in_(sub_subject_ids))).update({"deleted": True}, synchronize_session=False)
+
             db.session.commit()
 
+            trigger_sync(usr_id, exclusive_device_id=device_id)
             return {"success": True}
         
 @app.route("/api/sub-subjects", methods=["GET", "POST", "PUT", "DELETE"])
 @jwt_required()
 def sub_subjects(): 
     usr_id = get_jwt_identity()
+    device_id = get_jwt().get("device_id")
 
     if request.method == "GET": 
         sub_subjects = SubSubject.query.join(Subject, Subject.id == SubSubject.subject_id).join(Year, Year.id == Subject.year_id).join(YearMap, Year.id == YearMap.year_id).filter_by(user_id=usr_id).all()
@@ -361,6 +466,7 @@ def sub_subjects():
         ))
         db.session.commit()
 
+        trigger_sync(usr_id, exclusive_device_id=device_id)
         return {"success": True}
     
     else: 
@@ -370,33 +476,40 @@ def sub_subjects():
         if not sub_subject_ids: 
             return {"success": False, "msg": "invalidInput"}
 
-        sub_subject_records = SubSubject.query.filter(SubSubject.id.in_(sub_subject_ids)).join(Subject, Subject.id == SubSubject.subject_id).join(Year, Year.id == Subject.year_id).join(YearMap, Year.id == YearMap.year_id).all()
+        invalid_sub_subjects = SubSubject.query.filter(SubSubject.id.in_(sub_subject_ids)).join(Subject, Subject.id == SubSubject.id).join(Year, Year.id == Subject.year_id).join(YearMap, Year.id == YearMap.year_id).filter(YearMap.user_id != usr_id).all()
 
-        if len(sub_subject_ids) != len(sub_subject_records) or not all([s.user_id == usr_id for s in sub_subject_records]): 
+        if invalid_sub_subjects: 
             return {"success": False, "msg": "permissionDenied"}
         
         if request.method == "PUT": 
             if len(sub_subject_ids) != 1 or not sub_subject_data.get("data"): 
                 return {"success": False, "msg": "invalidInput"}
 
-            sub_subject = sub_subjects[0]
-            sub_subject.title = sub_subject.get("data").get("title", sub_subject.title)
-            sub_subject.weight = sub_subject.get("data").get("weight", sub_subject.weight)
+            u_data = sub_subjects_data.get("data")
+            SubSubject.query.filter(SubSubject.id.in_(sub_subject_ids)).update({
+                "title": u_data.get("title"), 
+                "weight": u_data.get("weight") 
+            }, synchronize_session=False)
+            
             db.session.commit()
 
+            trigger_sync(usr_id, exclusive_device_id=device_id)
             return {"success": True}
         
         else: 
-            for s in sub_subject_records: 
-                s.deleted = True
+            SubSubject.query.filter(SubSubject.id.in_(sub_subject_ids)).update({"deleted": True}, synchronize_session=False)
+            Grade.query.filter(Grade.subject_id.in_(sub_subject_ids)).update({"deleted": True}, synchronize_session=False)
+
             db.session.commit()
 
+            trigger_sync(usr_id, exclusive_device_id=device_id)
             return {"success": True}
         
 @app.route("/api/grades", methods=["GET", "POST", "PUT", "DELETE"])
 @jwt_required()
 def grades(): 
     usr_id = get_jwt_identity()
+    device_id = get_jwt().get("device_id")
 
     if request.method == "GET": 
         q1 = db.session.query(Grade).join(Subject, Subject.id == Grade.subject_id).join(Year, Year.id == Subject.year_id).join(YearMap, Year.id == YearMap.year_id).filter(YearMap.user_id == usr_id)
@@ -426,6 +539,7 @@ def grades():
         )) 
         db.session.commit()
 
+        trigger_sync(usr_id, exclusive_device_id=device_id)
         return {"success": True}
 
     else: 
@@ -435,9 +549,9 @@ def grades():
         if not grade_ids: 
             return {"success": True, "msg": "invalidInput"}
         
-        grade_records = Grade.query.filter(Grade.id.in_(grade_ids)).join(SubSubject, SubSubject.id == Grade.subject_id).join(Subject, Subject.id == Grade.subject_id).join(Year, Year.id == Subject.year_id).join(YearMap, Year.id == YearMap.year_id).all()
+        invalid_grades = Grade.query.filter(Grade.id.in_(grade_ids)).join(SubSubject, SubSubject.id == Grade.subject_id).join(Subject, or_(Subject.id == SubSubject.subject_id, Subject.id == Grade.subject_id)).join(Year, Year.id == Subject.year_id).join(YearMap, Year.id == YearMap.year_id).filter(YearMap.user_id != usr_id).all()
 
-        if len(grade_ids) != len(grade_records) or not all([g.user_id == usr_id for g in grade_records]): 
+        if invalid_grades: 
             return {"success": False, "msg": "permissionDenied"}
 
         
@@ -445,20 +559,25 @@ def grades():
             if len(grade_ids) != 1 or not grades_data.get("data"): 
                 return {"success": False, "msg": "invalidInput"}
 
-            grade = grades[0]
-            grade.title = grades_data.get("data").get("title", grade.title)
-            grade.mark = grades_data.get("data").get("mark", grade.mark)
-            grade.weight = grades_data.get("data").get("weight", grade.weight)
-            grade.date = grades_data.get("data").get("date", grade.date)
+            u_data = grades_data.get("data")
+            Grade.query.filter(Grade.id.in_(grade_ids)).update({
+                "title": u_data.get("title"),
+                "mark": u_data.get("mark"), 
+                "weight": u_data.get("weight"),
+                "date": u_data.get("date"),
+            }, synchronize_session=False)
+
             db.session.commit()
 
+            trigger_sync(usr_id, exclusive_device_id=device_id)
             return {"success": True}
 
         else: 
-            for g in grade_records: 
-                g.deleted = True
+            Grade.query.filter(Grade.id.in_(grade_ids)).update({"deleted": True}, synchronize_session=False)
+            
             db.session.commit()
 
+            trigger_sync(usr_id, exclusive_device_id=device_id)
             return {"success": True} 
     
 
@@ -468,4 +587,4 @@ def serve(path):
     return spa_file(path)
 
 if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0")
+    socketio.run(app, debug=True, host="0.0.0.0", port=5000)

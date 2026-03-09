@@ -70,6 +70,7 @@
         if (loginData.success) {
             await userStore.updateUser()
             localStorage.setItem('access_token', loginData.access_token)
+            localStorage.setItem('device_id', loginData.device_id)
             window.location.reload()
         } else {
             switch (loginData.msg) {

@@ -1,1 +1,4 @@
 [] Check for grades query issues regarding SubSubjects (delete and put) 
+[x] Live sync delete/put
+[x] Make edit ready
+[] Redis still used? 

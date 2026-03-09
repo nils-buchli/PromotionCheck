@@ -41,12 +41,11 @@ export const useYearStore = defineStore('yearStore', {
         async loadYears() {
             const years = await db.getYears()
 
-            for (const y of years) {
-                this.years.push(new Year({
-                    id: y['id'], 
-                    name: y['title']
-                }))
-            }
+            this.years = years.map(y => new Year({
+                id: y['id'], 
+                name: y['title']
+            }))
+
         }, 
         async addYear(yearName) {
             const id = uuidv4()
@@ -61,13 +60,18 @@ export const useYearStore = defineStore('yearStore', {
             )
         },
         async removeYearsById(ids) {
-            const subjectStore = useSubjectStore()
-            
             await db.removeElements(ids, 'years')
             
             this.years = this.years.filter(y => !ids.has(y.id))
-            subjectStore.removeSubjectsByYearId(ids)
-        } 
+        }, 
+        async editYearById(id, data) {
+            const idx = this.years.findIndex(y => y.id === id)
+            if (idx > -1) {
+                this.years[idx] = {...this.years[idx], ...data} 
+            }     
+
+            await db.editElement(id, {'title': data.name}, 'years')
+        }
     }
 
 })

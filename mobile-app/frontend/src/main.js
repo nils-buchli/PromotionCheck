@@ -15,6 +15,7 @@ import { useGradeStore } from './stores/grades'
 import { useGlobalStatesStore } from './stores/globalStates'
 import { useUserStore } from './stores/userStore'
 import { SyncService } from './services/sync'
+import { SocketService } from './services/socket'  
 
 window.JEEP_SQLITE_WASM_PATH = '/assets/sql-wasm.wasm';
 
@@ -29,34 +30,21 @@ app.use(router)
 async function initApp() {
     await db.init()
     
-    const yearStore = useYearStore()
-    const subjectStore = useSubjectStore()
-    const subSubjectStore = useSubSubjectStore()
-    const gradeStore = useGradeStore()
     const globalStateStore = useGlobalStatesStore()
     const userStore = useUserStore()
-
-    await yearStore.loadYears()
-    await subjectStore.loadSubjects()
-    await subSubjectStore.loadSubSubjects()
-    await gradeStore.loadGrades()
-
-    globalStateStore.initComplete = true
 
     await userStore.updateUser()
 
     const sync = new SyncService(db)
+    const socket = new SocketService()
 
     if (userStore.isLoggedIn) {
         await sync.sync()
+        await socket.init()
     }
-    
-    setInterval(() => {
-        if (userStore.isLoggedIn) {
-            sync.sync()
-        }
-    }, 60 * 1000)
 
+
+    globalStateStore.initComplete = true
     app.mount('#app')
 
 }

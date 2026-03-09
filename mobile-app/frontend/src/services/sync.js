@@ -1,6 +1,14 @@
+import { useUserStore } from '../stores/userStore'
+import { useYearStore } from '../stores/years'
+import { useSubjectStore } from '../stores/subjects'
+import { useSubSubjectStore } from '../stores/subsubjects'
+import { useGradeStore } from '../stores/grades'
+
 export class SyncService {
     constructor(dbService) {
         this.db = dbService
+        this.clientId = null
+        this.socket = null
     }
 
     _errorCheck(msg) {
@@ -23,6 +31,7 @@ export class SyncService {
 
     async pullYears() {
         const token = localStorage.getItem('access_token')
+        const yearStore = useYearStore()
 
         const response = await fetch('/api/years', {
             headers: {
@@ -50,6 +59,7 @@ export class SyncService {
                 } 
             }
             await this.db.sqlite.saveToStore('pluspointdb')
+            await yearStore.loadYears()
         } else {
             this._errorCheck(data.msg)
         }
@@ -97,6 +107,7 @@ export class SyncService {
 
     async pullSubjects() {
         const token = localStorage.getItem('access_token')
+        const subjectStore = useSubjectStore()
 
         const response = await fetch('/api/subjects', {
             headers: {
@@ -124,6 +135,7 @@ export class SyncService {
                 }  
             }
             await this.db.sqlite.saveToStore('pluspointdb')
+            await subjectStore.loadSubjects()
         } else {
             this._errorCheck(data.msg)
         }
@@ -172,6 +184,7 @@ export class SyncService {
 
     async pullSubSubjects() {
         const token = localStorage.getItem('access_token')
+        const subSubjectStore = useSubSubjectStore()
 
         const response = await fetch('/api/sub-subjects', {
             headers: {
@@ -200,6 +213,7 @@ export class SyncService {
                 
             }
             await this.db.sqlite.saveToStore('pluspointdb')
+            await subSubjectStore.loadSubSubjects()
         } else {
             this._errorCheck(data.msg)
         }
@@ -247,6 +261,7 @@ export class SyncService {
 
     async pullGrades() {
         const token = localStorage.getItem('access_token')
+        const gradeStore = useGradeStore()
 
         const response = await fetch('/api/grades', {
             headers: {
@@ -274,6 +289,7 @@ export class SyncService {
                 }
             }
             await this.db.sqlite.saveToStore('pluspointdb')
+            await gradeStore.loadGrades()
         } else {
             this._errorCheck(data.msg)
         }

@@ -64,16 +64,14 @@ export const useGradeStore = defineStore('gradeStore', {
         async loadGrades() {
             const grades = await db.getGrades()
 
-            for (const g of grades) {
-                this.grades.push(new Grade({
-                    id: g['id'], 
-                    name: g['title'], 
-                    mark: g['mark'], 
-                    weight: g['weight'], 
-                    date: g['date'], 
-                    subjectId: g['subject_id']
-                }))
-            }
+            this.grades = grades.map(g => new Grade({
+                id: g['id'], 
+                name: g['title'], 
+                mark: g['mark'], 
+                weight: g['weight'], 
+                date: g['date'], 
+                subjectId: g['subject_id']
+            }))
         },   
         async addGrade(gradeName, gradeMark, gradeWeight, gradeDate, gradeSubjectId) {
             const id = uuidv4()
@@ -105,13 +103,14 @@ export const useGradeStore = defineStore('gradeStore', {
             await db.removeElements(ids, 'grades')            
 
             this.grades = this.grades.filter(g => !ids.has(g.id))
-        }, 
-        async removeGradesBySubjectIds(ids) {
-            const gIds = this.grades.filter(g => {if(ids.has(g.subjectId)) return g.id})
-            
-            await this.removeGradesByIds(new Set(gIds))
+        },
+        async editGradeById(id, data) {
+            const idx = this.grades.findIndex(g => g.id === id)
+            if (idx > -1) {
+                this.grades[idx] = {...this.grades[idx], ...data}
+            }
+
+            await db.editElement(id, {'title': data.name, 'mark': data.mark, 'weight': data.weight, 'date': data.date}, 'grades')
         }
-
     }
-
 })

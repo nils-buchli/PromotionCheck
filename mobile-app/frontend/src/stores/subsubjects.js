@@ -68,14 +68,12 @@ export const useSubSubjectStore = defineStore('subSubjectStore', {
         async loadSubSubjects() {
             const subSubjects = await db.getSubSubjects()
 
-            for (const s of subSubjects) {
-                this.subSubjects.push(new SubSubject({
-                    id: s['id'], 
-                    name: s['title'], 
-                    weight: s['weight'], 
-                    subjectId: s['subject_id']
-                }))
-            }
+            this.subSubjects = subSubjects.map(s => new SubSubject({
+                id: s['id'], 
+                name: s['title'], 
+                weight: s['weight'], 
+                subjectId: s['subject_id']
+            }))
         }, 
         async addSubSubject(subSubjectName, subSubjectWeight, subSubjectSubjectId) {
             const id = uuidv4()
@@ -90,19 +88,17 @@ export const useSubSubjectStore = defineStore('subSubjectStore', {
             }))
         }, 
         async removeSubSubjectsById(ids) {
-            const gradeStore = useGradeStore()
-            
             await db.removeElements(ids, 'subSubjects')
             
             this.subSubjects = this.subSubjects.filter(s => !ids.has(s.id))
-            gradeStore.removeGradesBySubjectIds(ids)
         }, 
-        async removeSubSubjectsBySubjectId(ids) {
-            await this.removeSubSubjectsById(new Set(this.subSubjects.filter((s) => {
-                if(ids.has(s.subjectId)) {
-                    return s.id
-                }
-            })))
+        async editSubSubjectById(id, data) {
+            const idx = this.subSubjects.findIndex(s => s.id === id)
+            if (idx > -1) {
+                this.subSubjects[idx] = {...this.subSubjects[idx], ...data}
+            }
+
+            await db.editElement(id, {'title': data.name, 'weight': data.weight}, 'subSubjects')
         }
     }
 })
