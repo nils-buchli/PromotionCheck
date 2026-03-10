@@ -13,6 +13,7 @@
     "@capacitor/android": "^8.0.2",
     "@capacitor/cli": "^8.0.2",
     "@capacitor/core": "^8.0.2",
+    "chart.js": "^4.5.1",
     "jeep-sqlite": "^2.8.0",
     "pinia": "^3.0.4",
     "socket.io-client": "^4.8.3",

@@ -14,6 +14,7 @@ import SubSubjectsView from '../views/SubSubjectsView.vue'
 import { useSubSubjectStore } from '../stores/subsubjects'
 import UserView from '../views/UserView.vue'
 import { useGlobalStatesStore } from '../stores/globalStates'
+import AnalyticsView from '../views/AnalyticsView.vue'
 
 const routes = [
   {
@@ -74,6 +75,11 @@ const routes = [
     name: 'user', 
     component: UserView, 
   },
+  {
+    path: '/analytics',
+    name: 'analytics',
+    component: AnalyticsView
+  }, 
   {
     path: '/error', 
     name: 'error', 
