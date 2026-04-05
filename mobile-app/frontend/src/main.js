@@ -16,6 +16,7 @@ import { useGlobalStatesStore } from './stores/globalStates'
 import { useUserStore } from './stores/userStore'
 import { SyncService } from './services/sync'
 import { SocketService } from './services/socket'  
+import { useAnalyticsStore } from './stores/analytics'
 
 window.JEEP_SQLITE_WASM_PATH = '/assets/sql-wasm.wasm';
 
@@ -32,6 +33,7 @@ async function initApp() {
     
     const globalStateStore = useGlobalStatesStore()
     const userStore = useUserStore()
+    const analysticsStore = useAnalyticsStore()
 
     await userStore.updateUser()
 
@@ -43,6 +45,7 @@ async function initApp() {
         await socket.init()
     }
 
+    analysticsStore.init()
 
     globalStateStore.initComplete = true
     app.mount('#app')

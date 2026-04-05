@@ -1,91 +1,161 @@
 <template>
-    <div class="flex flex-1 items-start justify-center bg-zinc-50">
-        <form novalidate @submit.prevent="submit" class="w-full max-w-sm bg-zinc-100 rounded-2xl p-6 m-10 shadow-sm border border-zinc-200 space-y-4">
-            <h2 class="text-lg font-semibold text-zinc-900 mb-4">Login</h2>
-            
-            <div v-if="error" class="rounded-xl bg-red-100 border border-red-400 p-3">
-                <p class="text-sm text-red-700">{{ error }}</p>
+    <div class="flex flex-col flex-1 bg-zinc-50">
+
+        <!-- Server error -->
+        <div v-if="serverError" class="mt-6 mx-5">
+            <div class="bg-red-50 rounded-2xl border border-red-200 px-4 py-3.5">
+                <p class="text-[13px] text-red-500">{{ serverError }}</p>
             </div>
-            
-            <div>
-                <label class="block text-sm font-medium text-zinc-900 mb-1">Username</label>
-                <input 
+        </div>
+
+        <!-- Username -->
+        <div class="mt-6 mx-5">
+            <p class="text-[11px] font-semibold text-zinc-400 uppercase tracking-widest mb-2 px-1">Username</p>
+            <div class="bg-white rounded-2xl border border-zinc-200 overflow-hidden">
+                <input
+                    v-model="username"
                     type="text"
-                    v-model="username" 
                     autofocus
                     required
-                    placeholder="Michi" 
-                    class="w-full rounded-xl border bg-zinc-100 px-4 py-2 text-sm focus:outline-none focus:border-transparent placeholder:text-zinc-700 text-zinc-900 border-zinc-400 focus:ring-2 focus:ring-zinc-700"
+                    placeholder="Username"
+                    @blur="touchedFields.username = true"
+                    :class="[
+                        'w-full px-4 py-3.5 text-[15px] text-zinc-900 placeholder:text-zinc-300 bg-transparent focus:outline-none',
+                        isUsernameInvalid ? 'text-red-500' : ''
+                    ]"
                 />
             </div>
-            <div>
-                <label class="block text-sm font-medium text-zinc-900 mb-1">Passwort</label>
-                <input 
-                    type="password" 
-                    v-model="password"
-                    required
-                    placeholder="••••••••" 
-                    class="w-full rounded-xl border bg-zinc-100 px-4 py-2 text-sm focus:outline-none focus:border-transparent placeholder:text-zinc-700 text-zinc-900 border-zinc-400 focus:ring-2 focus:ring-zinc-700"
-                />
-            </div>
-            <button type="submit" class="w-full rounded-xl bg-zinc-900 py-2 text-sm font-medium text-white active:bg-zinc-700 transition">Login</button>
-            
-            <p class="text-center text-sm text-zinc-600">
-                Don't have an account? 
-                <button type="button" @click="$emit('switch-to-register')" class="text-zinc-900 font-medium hover:underline">Register</button>
+            <p
+                class="text-[11px] text-red-400 mt-1.5 px-1 transition-opacity duration-150"
+                :class="isUsernameInvalid ? 'opacity-100' : 'opacity-0'"
+            >
+                Please enter your username.
             </p>
-        </form>
+        </div>
+
+        <!-- Password -->
+        <div class="mt-2 mx-5">
+            <p class="text-[11px] font-semibold text-zinc-400 uppercase tracking-widest mb-2 px-1">Passwort</p>
+            <div class="bg-white rounded-2xl border border-zinc-200 overflow-hidden flex items-center pr-4">
+                <input
+                    v-model="password"
+                    :type="showPassword ? 'text' : 'password'"
+                    required
+                    placeholder="Password"
+                    @blur="touchedFields.password = true"
+                    :class="[
+                        'flex-1 px-4 py-3.5 text-[15px] text-zinc-900 placeholder:text-zinc-300 bg-transparent focus:outline-none',
+                        isPasswordInvalid ? 'text-red-500' : ''
+                    ]"
+                />
+                <button
+                    type="button"
+                    @click="showPassword = !showPassword"
+                    class="text-zinc-400 active:text-zinc-600 transition-colors"
+                    style="-webkit-tap-highlight-color: transparent;"
+                >
+                    <svg v-if="!showPassword" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                    <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.477 0-8.268-2.943-9.542-7a9.965 9.965 0 012.212-3.592M6.53 6.53A9.97 9.97 0 0112 5c4.477 0 8.268 2.943 9.542 7a10.025 10.025 0 01-4.132 5.411M3 3l18 18" />
+                    </svg>
+                </button>
+            </div>
+            <p
+                class="text-[11px] text-red-400 mt-1.5 px-1 transition-opacity duration-150"
+                :class="isPasswordInvalid ? 'opacity-100' : 'opacity-0'"
+            >
+                Please enter your password. 
+            </p>
+        </div>
+
+        <!-- Submit -->
+        <div class="mx-5 mt-4">
+            <button
+                type="button"
+                @click="submit"
+                class="w-full bg-zinc-100 active:bg-zinc-200 text-zinc-700 text-[15px] font-medium rounded-2xl py-3.5 transition-colors duration-150 border border-zinc-200"
+                style="-webkit-tap-highlight-color: transparent;"
+            >
+                Login
+            </button>
+        </div>
+
+        <!-- Register-Link -->
+        <p class="text-center text-[13px] text-zinc-400 mt-5">
+            No account yet?
+            <button
+                type="button"
+                @click="$emit('switch-to-register')"
+                class="text-zinc-600 font-medium"
+                style="-webkit-tap-highlight-color: transparent;"
+            >
+                Register
+            </button>
+        </p>
+
     </div>
 </template>
 
 <script setup>
-    import { ref, computed } from 'vue'
-    import { useUserStore } from '../stores/userStore'
+import { ref, computed } from 'vue'
+import { useUserStore } from '../stores/userStore'
 
-    const userStore = useUserStore()
-    
-    const username = ref('')
-    const password = ref('')
-    const error = ref('')
+defineEmits(['switch-to-register'])
 
-    const isUsernameInvalid = computed(() => !username.value.trim())
-    const isPasswordInvalid = computed(() => !password.value.trim())
+const userStore = useUserStore()
 
-    async function submit() {
-        error.value = ''
-        
-        if (isUsernameInvalid.value || isPasswordInvalid.value) return  
+const username     = ref('')
+const password     = ref('')
+const showPassword = ref(false)
+const serverError  = ref('')
 
-        const payload = {name: username.value, password: password.value}
-        
-        const response = await fetch('/api/login', {
-            method: 'POST', 
-            headers: {
-                'Content-Type': 'application/json'
-            }, 
-            body: JSON.stringify(payload)
-        })
-        
-        const loginData = await response.json()
-        if (loginData.success) {
-            await userStore.updateUser()
-            localStorage.setItem('access_token', loginData.access_token)
-            localStorage.setItem('device_id', loginData.device_id)
-            window.location.reload()
-        } else {
-            switch (loginData.msg) {
-                case 'noPasswordMatch':
-                    error.value = 'Password wrong.'
-                    break 
-                case 'userNotFound': 
-                    error.value = 'This username does not exist.'
-                    break
-                case 'inputInvalid': 
-                    error.value = 'The provided input is invalid.'
-                    break
-                default: 
-                    error.value = 'An error occured.'
-            }
+const touchedFields = ref({ username: false, password: false })
+
+const isUsernameInvalid = computed(() =>
+    touchedFields.value.username && !username.value.trim()
+)
+
+const isPasswordInvalid = computed(() =>
+    touchedFields.value.password && !password.value.trim()
+)
+
+async function submit() {
+    touchedFields.value.username = true
+    touchedFields.value.password = true
+    serverError.value = ''
+
+    if (isUsernameInvalid.value || isPasswordInvalid.value) return
+
+    const response = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: username.value, password: password.value })
+    })
+
+    const loginData = await response.json()
+
+    if (loginData.success) {
+        localStorage.setItem('access_token', loginData.access_token)
+        localStorage.setItem('device_id', loginData.device_id)
+        await userStore.updateUser()
+        window.location.reload()
+    } else {
+        switch (loginData.msg) {
+            case 'noPasswordMatch':
+                serverError.value = 'Wrong password.'
+                break
+            case 'userNotFound':
+                serverError.value = 'Username doesn\'t exist.'
+                break
+            case 'inputInvalid':
+                serverError.value = 'Invalid input.'
+                break
+            default:
+                serverError.value = 'An error occured. Plase try again.'
         }
     }
+}
 </script>

@@ -1,114 +1,163 @@
 <template>
-    <div class="flex flex-1 items-start justify-center bg-zinc-50">
-        <form novalidate @submit.prevent="submit" class="w-full max-w-sm bg-zinc-100 rounded-2xl p-6 m-10 shadow-sm border border-zinc-200 space-y-4">
-            <div>
-                <label class="block text-sm font-medium text-zinc-900 mb-1">Name</label>
-                <input 
+    <div class="flex flex-col flex-1 bg-zinc-50">
+
+        <!-- Name -->
+        <div class="mt-6 mx-5">
+            <p class="text-[11px] font-semibold text-zinc-400 uppercase tracking-widest mb-2 px-1">Name</p>
+            <div class="bg-white rounded-2xl border border-zinc-200 overflow-hidden">
+                <input
                     v-model="name"
-                    type="text" 
+                    type="text"
                     autofocus
                     required
-                    placeholder="Syntax" 
+                    placeholder="Name"
+                    @blur="touched = true"
                     :class="[
-                        'w-full rounded-xl border bg-zinc-100 px-4 py-2 text-sm focus:outline-none focus:border-transparent placeholder:text-zinc-700 text-zinc-900', 
-                        isNameInvalid ? 
-                        'border-red-700 ring-2 ring-red-700' : 
-                        'border-zinc-400 focus:ring-2 focus:ring-zinc-700'
+                        'w-full px-4 py-3.5 text-[15px] text-zinc-900 placeholder:text-zinc-300 bg-transparent focus:outline-none',
+                        isNameInvalid ? 'text-red-500' : ''
                     ]"
-                    @blur="touched=true"
                 />
             </div>
-            <div>
-                <label class="block text-sm font-medium text-zinc-900 mb-1">Mark</label>
-                <input 
+            <p
+                class="text-[11px] text-red-400 mt-1.5 px-1 transition-opacity duration-150"
+                :class="isNameInvalid ? 'opacity-100' : 'opacity-0'"
+            >
+                Please enter a name.
+            </p>
+        </div>
+
+        <!-- Mark -->
+        <div class="mt-2 mx-5">
+            <p class="text-[11px] font-semibold text-zinc-400 uppercase tracking-widest mb-2 px-1">Mark</p>
+            <div class="bg-white rounded-2xl border border-zinc-200 overflow-hidden">
+                <input
                     v-model="mark"
-                    type="number" 
+                    type="number"
                     required
-                    placeholder="4.5" 
+                    placeholder="Mark"
+                    step="0.5"
+                    min="1"
+                    max="6"
+                    @blur="touched = true"
                     :class="[
-                        'w-full rounded-xl border bg-zinc-100 px-4 py-2 text-sm focus:outline-none focus:border-transparent placeholder:text-zinc-700 text-zinc-900', 
-                        isWeightInvalid ? 
-                        'border-red-700 ring-2 ring-red-700' : 
-                        'border-zinc-400 focus:ring-2 focus:ring-zinc-700'
+                        'w-full px-4 py-3.5 text-[15px] text-zinc-900 placeholder:text-zinc-300 bg-transparent focus:outline-none',
+                        isMarkInvalid ? 'text-red-500' : ''
                     ]"
-                    @blur="touched=true"
                 />
             </div>
-            <div>
-                <label class="block text-sm font-medium text-zinc-900 mb-1">Weight</label>
-                <input 
+            <p
+                class="text-[11px] text-red-400 mt-1.5 px-1 transition-opacity duration-150"
+                :class="isMarkInvalid ? 'opacity-100' : 'opacity-0'"
+            >
+                Please enter a mark. 
+            </p>
+        </div>
+
+        <!-- Weight -->
+        <div class="mt-2 mx-5">
+            <p class="text-[11px] font-semibold text-zinc-400 uppercase tracking-widest mb-2 px-1">Weight</p>
+            <div class="bg-white rounded-2xl border border-zinc-200 overflow-hidden">
+                <input
                     v-model="weight"
-                    type="number" 
+                    type="number"
                     required
-                    placeholder="1.0" 
+                    placeholder="Weight"
+                    step="0.5"
+                    min="0"
+                    @blur="touched = true"
                     :class="[
-                        'w-full rounded-xl border bg-zinc-100 px-4 py-2 text-sm focus:outline-none focus:border-transparent placeholder:text-zinc-700 text-zinc-900', 
-                        isWeightInvalid ? 
-                        'border-red-700 ring-2 ring-red-700' : 
-                        'border-zinc-400 focus:ring-2 focus:ring-zinc-700'
+                        'w-full px-4 py-3.5 text-[15px] text-zinc-900 placeholder:text-zinc-300 bg-transparent focus:outline-none',
+                        isWeightInvalid ? 'text-red-500' : ''
                     ]"
-                    @blur="touched=true"
                 />
             </div>
-            <div>
-                <label class="block text-sm font-medium text-zinc-900 mb-1">Datum</label>
-                <input v-model="date" type="date" placeholder="dd.mm.yyyy" required :class="[
-                        'w-full rounded-xl border bg-zinc-100 px-4 py-2 text-sm focus:outline-none focus:border-transparent text-zinc-900', 
-                        isDateInvalid ? 
-                        'border-red-700 ring-2 ring-red-700' : 
-                        'border-zinc-400 focus:ring-2 focus:ring-zinc-700'
+            <p
+                class="text-[11px] text-red-400 mt-1.5 px-1 transition-opacity duration-150"
+                :class="isWeightInvalid ? 'opacity-100' : 'opacity-0'"
+            >
+                Please enter a weight.
+            </p>
+        </div>
+
+        <!-- Date -->
+        <div class="mt-2 mx-5">
+            <p class="text-[11px] font-semibold text-zinc-400 uppercase tracking-widest mb-2 px-1">Date</p>
+            <div class="bg-white rounded-2xl border border-zinc-200 overflow-hidden">
+                <input
+                    v-model="date"
+                    type="date"
+                    required
+                    @blur="touched = true"
+                    :class="[
+                        'w-full px-4 py-3.5 text-[15px] text-zinc-900 bg-transparent focus:outline-none',
+                        isDateInvalid ? 'text-red-500' : ''
                     ]"
-                    @blur="touched=true"
                 />
             </div>
-            <button type="submit" class="w-full rounded-xl bg-zinc-900 py-2 text-sm font-medium text-white active:bg-zinc-700 transition">Add Grade</button>
-        </form>
+            <p
+                class="text-[11px] text-red-400 mt-1.5 px-1 transition-opacity duration-150"
+                :class="isDateInvalid ? 'opacity-100' : 'opacity-0'"
+            >
+                Bitte ein Datum eingeben.
+            </p>
+        </div>
+
+        <!-- Submit -->
+        <div class="mx-5 mt-4">
+            <button
+                type="button"
+                @click="submit"
+                class="w-full bg-zinc-100 active:bg-zinc-200 text-zinc-700 text-[15px] font-medium rounded-2xl py-3.5 transition-colors duration-150 border border-zinc-200"
+                style="-webkit-tap-highlight-color: transparent;"
+            >
+                Add Grade
+            </button>
+        </div>
+
     </div>
 </template>
 
-<script setup>  
-    import { useRoute, useRouter } from 'vue-router'
-    import { computed, ref } from 'vue'
-    
-    import { useGradeStore } from '../stores/grades'
+<script setup>
+import { useRoute, useRouter } from 'vue-router'
+import { computed, ref } from 'vue'
 
-    function getToday() {
-        const today = new Date()
-        const year = today.getFullYear()
-        const month = String(today.getMonth() + 1).padStart(2, '0')
-        const day = String(today.getDate()).padStart(2, '0')
+import { useGradeStore } from '../stores/grades'
 
-        return `${year}-${month}-${day}`
-    }
+function getToday() {
+    const today = new Date()
+    const year = today.getFullYear()
+    const month = String(today.getMonth() + 1).padStart(2, '0')
+    const day = String(today.getDate()).padStart(2, '0')
+    return `${year}-${month}-${day}`
+}
 
-    const route = useRoute()
-    const router = useRouter()
+const route = useRoute()
+const router = useRouter()
 
-    const gradeStore = useGradeStore()
-    const name = ref('')
-    const mark = ref()
-    const weight = ref(1.0)
-    const date = ref(getToday())
-    const touched = ref(false)
+const gradeStore = useGradeStore()
+const name    = ref('')
+const mark    = ref()
+const weight  = ref(1.0)
+const date    = ref(getToday())
+const touched = ref(false)
 
-    const formattedDate = computed(() => {
-        if (!date.value) return ''
-        const [year, month, day] = date.value.split('-')
-        return `${day}.${month}.${year}`
-    })
+const formattedDate = computed(() => {
+    if (!date.value) return ''
+    const [year, month, day] = date.value.split('-')
+    return `${day}.${month}.${year}`
+})
 
-    const isNameInvalid = computed(() => touched.value && !name.value.trim())
-    const isMarkInvalid = computed(() => touched.value && !mark.value)
-    const isWeightInvalid = computed(() => touched.value && !weight.value)
-    const isDateInvalid = computed(() => touched.value && !date.value)
+const isNameInvalid   = computed(() => touched.value && !name.value.trim())
+const isMarkInvalid   = computed(() => touched.value && !mark.value)
+const isWeightInvalid = computed(() => touched.value && !weight.value)
+const isDateInvalid   = computed(() => touched.value && !date.value)
 
-    async function submit() {
-        touched.value = true    
-        if (isNameInvalid.value || isWeightInvalid.value || isMarkInvalid.value || !isDateInvalid) return 
-        
-        await gradeStore.addGrade(name.value, mark.value, weight.value, formattedDate.value, route.params.subjectId)
+async function submit() {
+    touched.value = true
+    if (isNameInvalid.value || isMarkInvalid.value || isWeightInvalid.value || isDateInvalid.value) return
 
-        router.back()
-    }
+    await gradeStore.addGrade(name.value, mark.value, weight.value, formattedDate.value, route.params.subjectId)
 
+    router.back()
+}
 </script>

@@ -34,3 +34,6 @@ python app.py
 
 ## Shortcut Flask
 cd C:\dev\pluspointsFp\mobile-app\backend; .\venv\Scripts\Activate.ps1; python app.py
+
+# Flask Log 
+journalctl -u flask_app.service -f

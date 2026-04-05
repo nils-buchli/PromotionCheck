@@ -108,7 +108,7 @@ export const useSubjectStore = defineStore('subjectStore', {
 
             for (const [subjectId, avg] of Object.entries(gradeStore.averageBySubject)) {
                 const diff = Math.round((avg - 4) * 2) / 2
-                const subject = this.subjectsById?.[subjectId] ?? this.subjectsById?.[subSubjectStore.subSubjectById?.[subjectId].subjectId]       
+                const subject = this.subjectsById?.[subjectId] ?? this.subjectsById?.[subSubjectStore.subSubjectById?.[subjectId]?.subjectId]       
                 
                 if (subject) {
                     map[subject.yearId] ??= 0
@@ -119,7 +119,7 @@ export const useSubjectStore = defineStore('subjectStore', {
             return map 
         },
         async removeSubjectsById(ids) {
-            await db.removeElements(ids, 'subjects', trigger_sync)
+            await db.removeElements(ids, 'subjects')
             
             this.subjects = this.subjects.filter(s => !ids.has(s.id))
         }, 

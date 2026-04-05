@@ -1,4 +1,6 @@
-[] Check for grades query issues regarding SubSubjects (delete and put) 
-[x] Live sync delete/put
-[x] Make edit ready
-[] Redis still used? 
+[] Teachers
+[x] Mini subject avg progression
+[] Custom date selection
+[x] Translate
+[x] Dream Grade
+[x] Island

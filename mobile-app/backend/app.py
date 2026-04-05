@@ -1,3 +1,5 @@
+#!/usr/bin/python 
+
 import os
 import mimetypes
 import uuid
@@ -34,15 +36,14 @@ if redis_client.ping():
     print("REDIS: Client online.")
 else : 
     print("REDIS: Client offline.")
-
-with open("dbpasswd.txt") as file: 
-    DB_PASSWORD = file.read()
+ 
+DB_PASSWORD = os.environ.get("DB_PASSWORD")
 
 app.config["SQLALCHEMY_DATABASE_URI"] = f"postgresql://nils:{DB_PASSWORD}@localhost/pluspointsdb"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
-with open("jwtsecretkey.txt") as file: 
-    JWT_KEY = file.read()
+
+JWT_KEY = os.environ.get("JWT_KEY")
 
 app.config["JWT_SECRET_KEY"] = JWT_KEY
 app.config["SECRET_KEY"] = JWT_KEY
@@ -409,7 +410,7 @@ def subjects():
             return {"success": False, "msg": "permissionDenied"}
         
         if request.method == "PUT": 
-            if len(subject_ids) != 1 or not subject_data.get("data"): 
+            if len(subject_ids) != 1 or not subjects_data.get("data"): 
                 return {"success": False, "msg": "invalidInput"}
             
             u_data = subjects_data.get("data")
@@ -523,8 +524,12 @@ def grades():
 
         if not (grades_data.get("id") and grades_data.get("title") and grades_data.get("mark") and grades_data.get("weight") and grades_data.get("date") and grades_data.get("subject_id")): 
             return {"success": False, "msg": "invalidInput"}
-        ym = YearMap.query.join(Year, Year.id == YearMap.year_id).join(Subject, Subject.year_id == Year.id).filter(Subject.id == grades_data.get("subject_id")).first()
-        if not ym or usr_id != ym.user_id: 
+        # --PROBLEM--
+        ym1 = YearMap.query.join(Year, Year.id == YearMap.year_id).join(Subject, Subject.year_id == Year.id).filter(Subject.id == grades_data.get("subject_id")).first()
+        ym2 = YearMap.query.join(Year, Year.id == YearMap.year_id).join(Subject, Subject.year_id == Year.id).join(SubSubject, SubSubject.subject_id == Subject.id).filter(SubSubject.id == grades_data.get("subject_id")).first()
+        print(ym1)
+        print(ym2)
+        if (ym1 and usr_id != ym1.user_id) and (ym2 and usr_id != ym2.user_id): 
             return {"success": False, "msg": "permissionDenied"}
         if Grade.query.filter_by(id=grades_data.get("id")).first(): 
             return {"success": False, "msg": "itemAlreadyExists"}

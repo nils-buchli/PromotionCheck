@@ -1,49 +1,63 @@
 <template>
-    <div class="flex flex-1 items-start justify-center bg-zinc-50">
-        <form novalidate @submit.prevent="submit" class="w-full max-w-sm bg-zinc-100 rounded-2xl p-6 m-10 shadow-sm border border-zinc-200 space-y-4">
-            <div>
-                <label class="block text-sm font-medium text-zinc-900 mb-1">Name</label>
-                <input 
+    <div class="flex flex-col flex-1 bg-zinc-50">
+
+        <!-- Input group -->
+        <div class="mt-6 mx-5">
+            <p class="text-[11px] font-semibold text-zinc-400 uppercase tracking-widest mb-2 px-1">Name</p>
+            <div class="bg-white rounded-2xl border border-zinc-200 overflow-hidden">
+                <input
                     v-model="name"
-                    type="text" 
+                    type="text"
                     autofocus
                     required
-                    placeholder="Gym 1" 
+                    placeholder="Name"
+                    @blur="touched = true"
                     :class="[
-                        'w-full rounded-xl border bg-zinc-100 px-4 py-2 text-sm focus:outline-none focus:border-transparent placeholder:text-zinc-700 text-zinc-900', 
-                        isInvalid ? 
-                        'border-red-700 ring-2 ring-red-700' : 
-                        'border-zinc-400 focus:ring-2 focus:ring-zinc-700'
+                        'w-full px-4 py-3.5 text-[15px] text-zinc-900 placeholder:text-zinc-300 bg-transparent focus:outline-none',
+                        isInvalid ? 'text-red-500' : ''
                     ]"
-                    @blur="touched=true"
                 />
             </div>
-            <button type="submit" class="w-full rounded-xl bg-zinc-900 py-2 text-sm font-medium text-white active:bg-zinc-700 transition">Add Year</button>
-        </form>
+            <p
+                class="text-[11px] text-red-400 mt-1.5 px-1 transition-opacity duration-150"
+                :class="isInvalid ? 'opacity-100' : 'opacity-0'"
+            >
+                Please enter a name.
+            </p>
+        </div>
+
+        <!-- Submit -->
+        <div class="mx-5 mt-4">
+            <button
+                type="button"
+                @click="submit"
+                class="w-full bg-zinc-100 hover:bg-zinc-200 active:bg-zinc-200 text-zinc-700 text-[15px] font-medium rounded-2xl py-3.5 transition-colors duration-150 border border-zinc-200"
+                style="-webkit-tap-highlight-color: transparent;"
+            >
+                Add Year
+            </button>
+        </div>
+
     </div>
 </template>
 
-<script setup>  
-    import { useRouter } from 'vue-router'
-    import { computed, ref } from 'vue'
-    
-    import { useYearStore } from '../stores/years'
+<script setup>
+import { useRouter } from 'vue-router'
+import { computed, ref } from 'vue'
+import { useYearStore } from '../stores/years'
 
-    const router = useRouter()
+const router    = useRouter()
+const yearStore = useYearStore()
 
-    const yearStore = useYearStore()
-    const name = ref('')
-    const touched = ref(false)
+const name    = ref('')
+const touched = ref(false)
 
-    const isInvalid = computed(() => touched.value && !name.value.trim())
+const isInvalid = computed(() => touched.value && !name.value.trim())
 
-    async function submit() {
-        touched.value = true 
-        if (isInvalid.value) return 
-        
-        await yearStore.addYear(name.value.trim())
-
-        router.replace('/years')
-    }
-
+async function submit() {
+    touched.value = true
+    if (isInvalid.value) return
+    await yearStore.addYear(name.value.trim())
+    router.replace('/years')
+}
 </script>

@@ -1,30 +1,114 @@
 <template>
-    <footer v-if="hasBottomBar" class="sticky bottom-0 z-50 h-20 bg-zinc-100 border-b flex items-center px-4 justify-between">
-        <div class="flex gap-3 justify-between">
-            <button class="p-1 flex items-center justify-center bg-transparent rounded-full transition-colors active:bg-zinc-200" @click="home()">
-                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#1f1f1f"><path d="M160-120v-480l320-240 320 240v480h-80v-440L480-740 240-560v440h-80Zm200-80h240v-80H360v80Zm0-160h240v-80H360v80Zm-80 240v-400h400v400H280Z"/></svg>
-            </button>
-            <button class="p-1 flex items-center justify-center bg-transparent rounded-full transition-colors active:bg-zinc-200" @click="user()">
-                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#1f1f1f"><path d="M367-527q-47-47-47-113t47-113q47-47 113-47t113 47q47 47 47 113t-47 113q-47 47-113 47t-113-47ZM160-160v-112q0-34 17.5-62.5T224-378q62-31 126-46.5T480-440q66 0 130 15.5T736-378q29 15 46.5 43.5T800-272v112H160Zm80-80h480v-32q0-11-5.5-20T700-306q-54-27-109-40.5T480-360q-56 0-111 13.5T260-306q-9 5-14.5 14t-5.5 20v32Zm296.5-343.5Q560-607 560-640t-23.5-56.5Q513-720 480-720t-56.5 23.5Q400-673 400-640t23.5 56.5Q447-560 480-560t56.5-23.5ZM480-640Zm0 400Z"/></svg>
-            </button>
-        </div>
+    <footer
+        v-if="hasBottomBar"
+        class="sticky bottom-0 z-50 flex items-center justify-around h-[68px] px-3 bg-zinc-100 border-t border-zinc-200"
+        style="-webkit-tap-highlight-color: transparent;"
+    >
+        <!-- Home -->
+        <button
+            @click="home"
+            class="nav-btn"
+            :class="isActive('years') ? 'text-zinc-900' : 'text-zinc-400'"
+            aria-label="Home"
+        >
+            <svg class="w-[22px] h-[22px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V9.5z"/>
+                <path d="M9 21V12h6v9"/>
+            </svg>
+            <span class="dot" :class="isActive('years') ? 'opacity-100' : 'opacity-0'" />
+        </button>
+
+        <!-- Analytics -->
+        <button
+            @click="analytics"
+            class="nav-btn"
+            :class="isActive('analytics') ? 'text-zinc-900' : 'text-zinc-400'"
+            aria-label="Statistiken"
+        >
+            <svg class="w-[22px] h-[22px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 20V10"/>
+                <path d="M12 20V4"/>
+                <path d="M6 20v-6"/>
+            </svg>
+            <span class="dot" :class="isActive('analytics') ? 'opacity-100' : 'opacity-0'" />
+        </button>
+
+        <!-- Teachers -->
+        <button
+            @click="teachers"
+            class="nav-btn"
+            :class="isActive('teachers') ? 'text-zinc-900' : 'text-zinc-400'"
+            aria-label="Lehrpersonen"
+        >
+            <svg class="w-[22px] h-[22px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+            <span class="dot" :class="isActive('teachers') ? 'opacity-100' : 'opacity-0'" />
+        </button>
+
+        <!-- Profile -->
+        <button
+            @click="user"
+            class="nav-btn"
+            :class="isActive('user') ? 'text-zinc-900' : 'text-zinc-400'"
+            aria-label="Profil"
+        >
+            <svg class="w-[22px] h-[22px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="8" r="4"/>
+                <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+            </svg>
+            <span class="dot" :class="isActive('user') ? 'opacity-100' : 'opacity-0'" />
+        </button>
     </footer>
 </template>
 
 <script setup>
-    import { computed } from 'vue'
-    import { useRoute, useRouter } from 'vue-router'
+import { computed } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 
-    const route = useRoute()
-    const router = useRouter()
-    
-    const hasBottomBar = computed(() => !(/add.*/.test(route.name)))
+const route  = useRoute()
+const router = useRouter()
 
-    function home() {
-        router.push('/')
-    }
+const hasBottomBar = computed(() => !(/add.*/.test(route.name)))
 
-    function user() {
-        router.push('/user')
-    }
+function isActive(name) {
+    if (name === 'years') return ['years', 'subjects', 'subSubjects', 'grades'].includes(route.name)
+    return route.name === name
+}
+
+function home()      { router.push('/') }
+function user()      { router.push('/user') }
+function analytics() { router.push('/analytics') }
+function teachers()  { router.push('/teachers') }
 </script>
+
+<style scoped>
+.nav-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    width: 52px;
+    height: 52px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    border-radius: 12px;
+    padding: 0;
+    transition: color 150ms ease;
+}
+.nav-btn:active { background: #e4e4e7; }
+
+.dot {
+    display: block;
+    width: 4px;
+    height: 4px;
+    border-radius: 9999px;
+    background: currentColor;
+    transition: opacity 150ms ease;
+}
+</style>

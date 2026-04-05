@@ -3,6 +3,8 @@ import { v4 as uuidv4 } from 'uuid'
 
 import { Grade } from '../models/grade'
 import { useSubSubjectStore } from './subsubjects'
+import { useSubjectStore } from './subjects'
+import { useAnalyticsStore } from './analytics'
 import db from '../services/db'
 
 
@@ -57,6 +59,25 @@ export const useGradeStore = defineStore('gradeStore', {
                 Object.entries(map).map(([id, value]) => [id, value.sum / value.weightSum])
             ) // {subjectId : average}
         }, 
+        gradesByYearId: (state) => {
+            const subSubjectStore = useSubSubjectStore()
+            const subjectStore = useSubjectStore()
+
+            const map = {}
+            
+            for (const g of state.grades) {
+                let subjectId = g.subjectId
+                
+                const subSubject = subSubjectStore.subSubjectById?.[subjectId]
+                if (subSubject) subjectId = subSubject.subjectId
+                const yearId = subjectStore.subjectsById[subjectId].yearId
+                
+                map[yearId] ??= []
+                map[yearId].push(g)
+            }
+
+            return map
+        }
 
     }, 
 
@@ -75,9 +96,8 @@ export const useGradeStore = defineStore('gradeStore', {
         },   
         async addGrade(gradeName, gradeMark, gradeWeight, gradeDate, gradeSubjectId) {
             const id = uuidv4()
-
-            await db.addGrade(id, gradeName, gradeMark, gradeWeight, gradeDate, gradeSubjectId)
             
+                    
             this.grades.push(new Grade({
                     id: id, 
                     name: gradeName, 
@@ -87,6 +107,9 @@ export const useGradeStore = defineStore('gradeStore', {
                     subjectId: gradeSubjectId
                 })
             )
+
+            await db.addGrade(id, gradeName, gradeMark, gradeWeight, gradeDate, gradeSubjectId)
+    
         }, 
         getPlusPointsBySubject() {
             const map =  {}
@@ -100,9 +123,9 @@ export const useGradeStore = defineStore('gradeStore', {
             return map
         }, 
         async removeGradesByIds(ids) {
-            await db.removeElements(ids, 'grades')            
-
             this.grades = this.grades.filter(g => !ids.has(g.id))
+
+            await db.removeElements(ids, 'grades')  
         },
         async editGradeById(id, data) {
             const idx = this.grades.findIndex(g => g.id === id)
@@ -111,6 +134,31 @@ export const useGradeStore = defineStore('gradeStore', {
             }
 
             await db.editElement(id, {'title': data.name, 'mark': data.mark, 'weight': data.weight, 'date': data.date}, 'grades')
+        }, 
+        getGradesBySubjectStortedByDate() {
+            const gradesBySubject = this.gradesBySubject
+            const toISO = str => str.split('.').reverse().join('-')
+            
+            for (const [subjectId, grades] of Object.entries(gradesBySubject)) {
+                gradesBySubject[subjectId] = grades.sort((a, b) => toISO(a.date).localeCompare(toISO(b.date)))
+            }
+            return gradesBySubject
+        }, 
+        getGradesSortedByDate() {
+            const toISO = str => str.split('.').reverse().join('-')
+            return [...this.grades].sort((a, b) => toISO(a.date).localeCompare(toISO(b.date)))
+        }, 
+        getYearIdForGrade(grade) {
+            const subSubjectStore = useSubSubjectStore()
+            const subjectStore = useSubjectStore()
+            
+            let subjectId = grade.subjectId
+            if (subjectId in subSubjectStore.subSubjectById) {
+                subjectId = subSubjectStore.subSubjectById[subjectId].subjectId
+            }
+            return subjectStore.subjectsById[subjectId]?.yearId
+
         }
+        
     }
 })

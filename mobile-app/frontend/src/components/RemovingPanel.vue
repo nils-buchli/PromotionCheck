@@ -1,71 +1,92 @@
 <template>
-  <transition name="fade">
-    <div v-if="isActive" class="fixed left-4 bottom-24 z-50 opacity-85">
-      <div class="bg-zinc-100 border border-zinc-200 shadow-sm rounded-2xl px-5 py-4 w-40">
-        <p  class="text-s font-semibold tracking-wide text-zinc-900 mb-1">
-          REMOVING
-        </p>
-        <p class="text-xs font-semibold  text-zinc-500 mb-2">
-          Elements {{ elementCount }}
-        </p>
-        <button @click="remove" class="w-full rounded-xl bg-red-700 py-2 text-sm font-medium text-white active:bg-red-800 transition">
-          Delete
-        </button>
+    <Transition name="fade">
+        <div v-if="isActive" class="fixed bottom-24 left-1/2 -translate-x-1/2 z-50">
+            <div class="bg-zinc-50 border border-zinc-200 shadow-md rounded-3xl px-5 py-4 w-64">
 
-      </div>
-    </div>
-  </transition>
+                <!-- Label -->
+                <p class="text-[11px] font-semibold text-zinc-400 uppercase tracking-widest mb-1 px-1">
+                    Delete selection 
+                </p>
+
+                <!-- Anzahl -->
+                <p class="text-[15px] font-semibold text-zinc-900 px-1 mb-4">
+                    {{ elementCount }} {{ elementLabel }} selected
+                </p>
+
+                <!-- Buttons -->
+                <div class="flex gap-2">
+                    <button
+                        @click="cancel"
+                        class="flex-1 rounded-2xl border border-zinc-200 bg-zinc-100 active:bg-zinc-200 text-zinc-500 text-[14px] font-medium py-2.5 transition-colors duration-150"
+                        style="-webkit-tap-highlight-color: transparent;"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        @click="remove"
+                        class="flex-1 rounded-2xl border border-zinc-200 bg-zinc-100 active:bg-zinc-200 text-red-500 text-[14px] font-medium py-2.5 transition-colors duration-150"
+                        style="-webkit-tap-highlight-color: transparent;"
+                    >
+                        Delete
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </Transition>
 </template>
 
 <script setup>
-    import { computed } from 'vue'
-    import { useRoute } from 'vue-router'
-    
-    import { useGlobalStatesStore } from '../stores/globalStates'
-    import { useYearStore } from '../stores/years'
-    import { useSubjectStore } from '../stores/subjects'
-    import { useSubSubjectStore } from '../stores/subsubjects'
-    import { useGradeStore } from '../stores/grades'
+import { computed } from 'vue'
+import { useRoute } from 'vue-router'
 
-    const route = useRoute()
+import { useGlobalStatesStore } from '../stores/globalStates'
+import { useYearStore }         from '../stores/years'
+import { useSubjectStore }      from '../stores/subjects'
+import { useSubSubjectStore }   from '../stores/subsubjects'
+import { useGradeStore }        from '../stores/grades'
 
-    const globalStatesStore = useGlobalStatesStore()
-    const yearStore = useYearStore()
-    const subjectStore = useSubjectStore()
-    const subSubjectStore = useSubSubjectStore()
-    const gradeStore = useGradeStore()
+const route = useRoute()
 
-    const isActive = computed(() => globalStatesStore.removingElements)
-    const elementCount = computed(() => globalStatesStore.removeCount)
+const globalStatesStore = useGlobalStatesStore()
+const yearStore         = useYearStore()
+const subjectStore      = useSubjectStore()
+const subSubjectStore   = useSubSubjectStore()
+const gradeStore        = useGradeStore()
 
-    function remove(){
-        globalStatesStore.removingElements = false
-        
-        switch(route.name) {
-          case 'years': 
-            yearStore.removeYearsById(globalStatesStore.removeIds)
-            break
-          case 'subjects': 
-            subjectStore.removeSubjectsById(globalStatesStore.removeIds)
-            break 
-          case 'subSubjects': 
-            subSubjectStore.removeSubSubjectsById(globalStatesStore.removeIds)
-              break 
-          case 'grades': 
-            gradeStore.removeGradesByIds(globalStatesStore.removeIds)
-            break
-        }
+const isActive     = computed(() => globalStatesStore.removingElements)
+const elementCount = computed(() => globalStatesStore.removeCount)
+
+const typeLabels = { years: 'Year', subjects: 'Subject', subSubjects: 'Sub-subject', grades: 'Grade' }
+const typeLabelsPl = { years: 'Years', subjects: 'Subjects', subSubjects: 'Sub-subjects', grades: 'Grades' }
+
+const elementLabel = computed(() => {
+    const count = elementCount.value
+    return count === 1
+        ? (typeLabels[route.name]   ?? 'Element')
+        : (typeLabelsPl[route.name] ?? 'Elemente')
+})
+
+function cancel() {
+    globalStatesStore.removingElements = false
+    globalStatesStore.removeIds = []
+}
+
+function remove() {
+    globalStatesStore.removingElements = false
+
+    switch (route.name) {
+        case 'years':       yearStore.removeYearsById(globalStatesStore.removeIds);             break
+        case 'subjects':    subjectStore.removeSubjectsById(globalStatesStore.removeIds);       break
+        case 'subSubjects': subSubjectStore.removeSubSubjectsById(globalStatesStore.removeIds); break
+        case 'grades':      gradeStore.removeGradesByIds(globalStatesStore.removeIds);          break
     }
+}
 </script>
 
-<style>
-    .fade-enter-active,
-    .fade-leave-active{
-    transition: opacity .2s ease, transform .2s ease;
-    }
-    .fade-enter-from,
-    .fade-leave-to{
-    opacity:0;
-    transform: translateY(10px);
-    }
+<style scoped>
+.fade-enter-active,
+.fade-leave-active { transition: opacity 0.2s ease, transform 0.2s ease; }
+.fade-enter-from,
+.fade-leave-to     { opacity: 0; transform: translateY(10px) translateX(-50%); }
 </style>

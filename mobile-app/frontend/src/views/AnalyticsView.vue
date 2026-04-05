@@ -1,7 +1,6 @@
 <template>
-    <main class="flex flex-col h-full">
-        <!-- Custom Year Dropdown -->
-        <div class="px-4 py-3 bg-white border-b border-zinc-200/50 flex-shrink-0">
+    <main class="flex flex-col h-full w-full overflow-hidden">
+        <div class="px-4 py-3 bg-white border-b border-zinc-200/50 flex-shrink-0 w-full">
             <div class="relative">
                 <button
                     @click="dropdownOpen = !dropdownOpen"
@@ -9,7 +8,7 @@
                 >
                     <span>{{ selectedYear }}</span>
                     <svg 
-                        :class="['w-4 h-4 transition', dropdownOpen ? 'rotate-180' : '']"
+                        :class="['w-4 h-4 transition flex-shrink-0', dropdownOpen ? 'rotate-180' : '']"
                         fill="none" 
                         stroke="currentColor" 
                         viewBox="0 0 24 24"
@@ -18,13 +17,12 @@
                     </svg>
                 </button>
 
-                <!-- Dropdown Menu -->
                 <div 
                     v-if="dropdownOpen"
                     class="absolute top-full left-0 right-0 mt-1 bg-white border border-zinc-300 rounded-xl shadow-lg z-50 overflow-hidden"
                 >
                     <div 
-                        v-for="year in years" 
+                        v-for="year in yearStore.years" 
                         :key="year.id"
                         @click="selectYear(year.id)"
                         :class="[
@@ -38,23 +36,21 @@
             </div>
         </div>
 
-        <!-- Chart Container - No Scrolling -->
-        <div class="flex-1 flex flex-col min-h-0">
-            <div class="flex-1 px-4 py-4 min-h-0 flex flex-col">
-                <div class="bg-white rounded-2xl p-4 border border-zinc-200/50 shadow-sm flex-1 flex flex-col overflow-hidden">
-                    <div class="mb-3 flex-shrink-0">
-                        <p class="text-xs text-zinc-500 mb-1">Notenschnitt Verlauf</p>
+        <div class="flex-1 flex flex-col min-h-0 w-full overflow-hidden">
+            <div class="flex-1 px-3 py-3 min-h-0 flex flex-col w-full overflow-hidden">
+                <div class="bg-white rounded-2xl p-3 border border-zinc-200/50 shadow-sm flex-1 flex flex-col overflow-hidden">
+                    <div class="mb-2 flex-shrink-0">
+                        <p class="text-xs text-zinc-500 mb-1">Average progression</p>
                         <p class="text-2xl font-bold text-zinc-900">{{ currentAverage }}</p>
                     </div>
                     
-                    <div class="flex-1 relative min-h-0">
+                    <div class="flex-1 relative min-h-0 w-full overflow-hidden">
                         <canvas ref="chartRef"></canvas>
                     </div>
 
-                    <!-- Info Text -->
-                    <div class="pt-3 border-t border-zinc-100 flex-shrink-0">
+                    <div class="pt-2 border-t border-zinc-100 flex-shrink-0">
                         <p class="text-xs text-zinc-500">
-                            <span class="font-medium">{{ gradeCount }}</span> Noten erfasst
+                            <span class="font-medium">{{ averageCount }}</span> grades processed  
                         </p>
                     </div>
                 </div>
@@ -66,50 +62,30 @@
 <script setup>
     import { ref, computed, watch, onMounted } from 'vue'
     import Chart from 'chart.js/auto'
+    import { useYearStore } from '../stores/years'
+    import { useAnalyticsStore } from '../stores/analytics'
 
     const chartRef = ref(null)
     let chartInstance = null
     const dropdownOpen = ref(false)
 
-    const years = [
-        { id: '1', name: '2024' },
-        { id: '2', name: '2025' }
-    ]
+    const yearStore = useYearStore()
+    const analyticsStore = useAnalyticsStore()
 
-    const gradesData = {
-        '1': [
-            { date: '01.09', mark: 4.0 },
-            { date: '15.09', mark: 4.2 },
-            { date: '01.10', mark: 4.1 },
-            { date: '20.10', mark: 4.3 },
-            { date: '05.11', mark: 4.5 },
-            { date: '22.11', mark: 4.4 },
-            { date: '10.12', mark: 4.6 }
-        ],
-        '2': [
-            { date: '15.01', mark: 3.9 },
-            { date: '02.02', mark: 4.0 },
-            { date: '20.02', mark: 4.2 },
-            { date: '08.03', mark: 4.1 },
-            { date: '25.03', mark: 4.3 }
-        ]
-    }
+    const gradesData = analyticsStore.yearAverages
 
-    const selectedYearId = ref('1')
+    
+    const selectedYearId = ref(yearStore.years[0].id)
 
     const selectedYear = computed(() => {
-        return years.find(y => y.id === selectedYearId.value)?.name || ''
+        return yearStore.yearsById[selectedYearId.value]?.name || '-'
     })
 
-    const currentGrades = computed(() => gradesData[selectedYearId.value] || [])
+    const currentAverages = computed(() => gradesData[selectedYearId.value] || [])
 
-    const currentAverage = computed(() => {
-        if (currentGrades.value.length === 0) return '-'
-        const avg = currentGrades.value.reduce((sum, g) => sum + g.mark, 0) / currentGrades.value.length
-        return (Math.round(avg * 100) / 100).toFixed(2)
-    })
+    const currentAverage = computed(() => Math.round(currentAverages.value.slice(-1)[0]?.average * 100) / 100 || '-')
 
-    const gradeCount = computed(() => currentGrades.value.length)
+    const averageCount = computed(() => currentAverages.value.length) // gradeCount
 
     const selectYear = (yearId) => {
         selectedYearId.value = yearId
@@ -119,31 +95,36 @@
     const initChart = () => {
         if (!chartRef.value) return
 
-        const grades = currentGrades.value
+        const averages = currentAverages.value
 
-        if (grades.length === 0) return
+        if (averages.length === 0) return
 
         if (chartInstance) {
             chartInstance.destroy()
         }
 
+        const values = averages.map(a => a.average)
+
+        const yMin = Math.min(...values) - 0.1 
+        const yMax = Math.max(...values) + 0.1 
+
         const ctx = chartRef.value.getContext('2d')
         chartInstance = new Chart(ctx, {
             type: 'line',
             data: {
-                labels: grades.map(g => g.date),
+                labels: averages.map(a => a.date),
                 datasets: [{
                     label: 'Notenschnitt',
-                    data: grades.map(g => g.mark),
+                    data: values,
                     borderColor: '#1f2937',
                     backgroundColor: 'rgba(31, 41, 55, 0.08)',
-                    borderWidth: 2,
+                    borderWidth: 2.5,
                     fill: true,
-                    tension: 0.3,
-                    pointRadius: 2.5,
+                    tension: 0.1,
+                    pointRadius: 0,
                     pointBackgroundColor: '#1f2937',
                     pointBorderColor: '#fff',
-                    pointBorderWidth: 1,
+                    pointBorderWidth: 0,
                     pointHoverRadius: 4,
                     pointHoverBackgroundColor: '#1f2937'
                 }]
@@ -162,31 +143,13 @@
                     legend: {
                         display: false
                     },
-                    tooltip: {
-                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                        padding: 10,
-                        titleFont: {
-                            size: 12,
-                            weight: 'bold'
-                        },
-                        bodyFont: {
-                            size: 12
-                        },
-                        borderColor: 'rgba(255, 255, 255, 0.2)',
-                        borderWidth: 1,
-                        displayColors: false,
-                        callbacks: {
-                            label: function(context) {
-                                return 'Schnitt: ' + context.parsed.y.toFixed(2)
-                            }
-                        }
-                    }
+                    tooltip: null
                 },
                 scales: {
                     y: {
                         beginAtZero: false,
-                        min: 1,
-                        max: 6,
+                        min: yMin,
+                        max: yMax,
                         grid: {
                             color: 'rgba(0, 0, 0, 0.05)',
                             drawBorder: false
@@ -208,7 +171,12 @@
                             font: {
                                 size: 9
                             },
-                            padding: 2
+                            padding: 2,
+
+                            callback: function(value, index) {
+                                const step = Math.ceil(averages.length / 6) 
+                                return index % step === 0 ? averages[index].date : ''
+                            }
                         }
                     }
                 }
@@ -224,6 +192,3 @@
         initChart()
     })
 </script>
-
-<style scoped>
-</style>

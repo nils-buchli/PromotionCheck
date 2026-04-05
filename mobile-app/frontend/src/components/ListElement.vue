@@ -1,334 +1,384 @@
 <template>
-    <div class="relative group">
-        <div 
+    <div class="relative">
+
+        <div
             ref="elementRef"
-            @click="onClick()" 
+            @click="onClick()"
             @mousedown="startLongPress"
             @mouseup="endLongPress"
             @mouseleave="cancelLongPress"
-            @touchstart="startLongPress"
+            @touchstart.passive="startLongPress"
             @touchend="endLongPress"
-            class="block w-full cursor-pointer"
+            class="block w-full cursor-pointer select-none bg-white active:bg-zinc-50 transition-colors duration-150"
+            :class="{ 'bg-zinc-50': showActions }"
+            style="-webkit-tap-highlight-color: transparent;"
         >
-            <div class="w-full h-20 flex items-center bg-white border-b border-zinc-200 transition-colors duration-200" :class="showActions ? 'bg-zinc-50' : ''">
-                <div class="h-full w-full flex items-center px-4 transition-all duration-200" :class="isIrelevant ? 'opacity-40 bg-zinc-100' : ''">         
-                    <div class="flex-1 pr-4">
-                        <p class="text-lg font-semibold text-zinc-900" :class="removeToggle ? 'line-through' : ''">{{ props.element.name }}</p>
-                        <p v-if="hasDate" class="text-xs text-zinc-500">{{ props.element.date }}</p>
-                        <p v-if="hasSubElement" class="text-xs text-zinc-500">{{ elementCount }} {{ elementCount != 1 ? subElementName + 's' : subElementName }}</p>
-                    </div>
-                    <div class="grid grid-cols-2 grid-rows-2 items-center gap-1 pt-2 text-sm text-zinc-600">
-                        <div v-if="hasWeight" class="flex items-center gap-1">                        
-                            <svg xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 -960 960 960" width="18px" fill="#1f1f1f"><path d="m296-224-56-56 240-240 240 240-56 56-184-183-184 183Zm0-240-56-56 240-240 240 240-56 56-184-183-184 183Z"/></svg>
-                            <span>{{ props.element.weight }}</span>
-                        </div>
-                        <div v-if="hasPlusPoints" class="flex items-center gap-1">
-                            <svg xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 -960 960 960" width="18px" fill="#1f1f1f"><path d="M440-280h80v-160h160v-80H520v-160h-80v160H280v80h160v160ZM200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v560q0 33-23.5 56.5T760-120H200Zm0-80h560v-560H200v560Zm0-560v560-560Z"/></svg>
-                            <span>{{ plusPoints }}</span>
-                        </div>
-                        <div v-if="hasTeacher" class="col-span-2 flex items-center gap-1">                             
-                            <svg xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 -960 960 960" width="18px" fill="#1f1f1f"><path d="M480-120 200-272v-240L40-600l440-240 440 240v320h-80v-276l-80 44v240L480-120Zm0-332 274-148-274-148-274 148 274 148Zm0 241 200-108v-151L480-360 280-470v151l200 108Zm0-241Zm0 90Zm0 0Z"/></svg>
-                            <span>Hägi</span>
-                        </div>
-                    </div>
-                    <div class="flex-1 text-right">
-                        <p class="text-lg font-semibold text-zinc-900">{{ data == '-' ? '-' : Math.round(data * 100) / 100 }}</p>
-                        <p class="text-xs text-zinc-500">{{ dataLabel }}</p>
+            <div
+                class="flex items-center gap-3 px-5 py-3.5 transition-opacity duration-200"
+                :class="isIrelevant ? 'opacity-30' : 'opacity-100'"
+            >
+                <!-- Left: Name + Meta -->
+                <div class="flex-1 min-w-0">
+                    <span
+                        class="block text-[15px] font-semibold text-zinc-900 tracking-tight truncate leading-snug"
+                        :class="removeToggle ? 'line-through text-zinc-400' : ''"
+                    >
+                        {{ props.element.name }}
+                    </span>
+
+                    <div class="flex items-center gap-1.5 mt-0.5 flex-wrap">
+                        <span v-if="hasDate" class="text-[11px] text-zinc-400">{{ props.element.date }}</span>
+
+                        <template v-if="hasDate && (hasSubElement || hasTeacher || hasWeight)">
+                            <span class="text-[11px] text-zinc-300">·</span>
+                        </template>
+
+                        <span v-if="hasSubElement" class="text-[11px] text-zinc-400">
+                            {{ elementCount }}&thinsp;{{ elementCount !== 1 ? subElementName + 's' : subElementName }}
+                        </span>
+
+                        <template v-if="hasSubElement && (hasTeacher || hasWeight)">
+                            <span class="text-[11px] text-zinc-300">·</span>
+                        </template>
+
+                        <span v-if="hasTeacher" class="text-[11px] text-zinc-500 font-medium">brc</span>
+
+                        <template v-if="hasTeacher && hasWeight">
+                            <span class="text-[11px] text-zinc-300">·</span>
+                        </template>
+
+                        <span
+                            v-if="hasWeight"
+                            class="inline-flex items-center text-[10px] font-semibold text-zinc-500 bg-zinc-100 rounded px-1.5 py-px tracking-wide"
+                        >
+                            {{ props.element.weight }}×
+                        </span>
                     </div>
                 </div>
+
+                <!-- Right: Plus · Score · Trend -->
+                <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <span
+                        v-if="hasPlusPoints && plusPoints !== '-'"
+                        class="text-[11px] font-semibold text-emerald-600 tracking-wide"
+                    >
+                        {{plusPoints < 0 ? '-' : '+'}}{{ Math.abs(plusPoints) }}
+                    </span>
+
+                    <div class="flex flex-col items-end">
+                        <span class="text-[15px] font-semibold text-zinc-700 leading-none tracking-tight tabular-nums">
+                            {{ data === '-' ? '–' : (Math.round(data * 100) / 100).toFixed(2) }}
+                        </span>
+                        <span class="text-[9px] font-medium text-zinc-400 uppercase tracking-widest mt-0.5">
+                            {{ dataLabel }}
+                        </span>
+                    </div>
+                    <svg
+                        v-if="improvement != null"
+                        class="w-3.5 h-3.5 flex-shrink-0"
+                        :class="{
+                            'text-emerald-500': improvement === 1,
+                            'text-red-500': improvement === -1,
+                            'text-gray-400': improvement === 0
+                        }"
+                        viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2.8"
+                        stroke-linecap="round" stroke-linejoin="round"
+                    >
+                        <polyline v-if="improvement === 1"  points="18 15 12 9 6 15"/>
+                        <polyline v-else-if="improvement === -1" points="6 9 12 15 18 9"/>
+                        <line    v-else x1="5" y1="12" x2="19" y2="12"/>
+                    </svg>
+                </div>
             </div>
+
+            <div class="h-px bg-zinc-100 mx-5" />
         </div>
 
+        <!-- Backdrop -->
         <transition name="fade">
-            <div 
+            <div
                 v-if="showActions"
                 @click="closeActions"
-                class="fixed inset-0 z-40 bg-black/0"
+                class="fixed inset-0 z-40"
             />
         </transition>
 
+        <!-- Action Pill -->
         <Teleport to="body" v-if="showActions">
             <transition name="popup">
-                <div 
-                    class="fixed z-50 px-1.5 py-1.5 bg-white rounded-full shadow-md border border-zinc-200/80 flex gap-0.5"
-                    :style="{
-                        top: islandTop + 'px',
-                        left: islandLeft + 'px',
-                        transform: 'translate(-50%, -100%)',
-                        backdropFilter: 'blur(4px)'
-                    }"
+                <div
+                    class="action-pill"
+                    :style="{ top: islandTop + 'px', left: islandLeft + 'px' }"
                     @click.stop
                 >
-                    <button
-                        @click="handleEdit"
-                        class="py-1 px-1.5 rounded-full hover:bg-zinc-100 transition-colors duration-150 text-zinc-600 hover:text-zinc-900"
-                    >
-                        <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25z"/>
-                            <path d="M20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                    <!-- Edit -->
+                    <button @click="handleEdit" class="action-btn">
+                        <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
                         </svg>
+                        <span>Edit</span>
                     </button>
 
-                    <button
-                        @click="handleDelete"
-                        class="py-1 px-1.5 rounded-full hover:bg-zinc-100 transition-colors duration-150 text-zinc-600 hover:text-zinc-900"
-                    >
-                        <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-9l-1 1H5v2h14V4z"/>
+                    <div class="w-px h-5 bg-zinc-200 flex-shrink-0" />
+
+                    <!-- Delete -->
+                    <button @click="handleDelete" class="action-btn action-btn--danger">
+                        <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="3 6 5 6 21 6"/>
+                            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                            <path d="M10 11v6"/>
+                            <path d="M14 11v6"/>
+                            <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
                         </svg>
+                        <span>Delete</span>
                     </button>
                 </div>
             </transition>
         </Teleport>
 
-        <EditIsland 
+        <EditIsland
             :is-open="editMode"
             :element="props.element"
             :element-type="elementType"
             @close="editMode = false"
             @save="saveEdit"
         />
-
     </div>
 </template>
 
 <script setup>
-    import { ref, computed, watch } from 'vue'
-    import { useRoute, useRouter } from 'vue-router'
+import { ref, computed, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+
+import { useYearStore }         from '../stores/years'
+import { useSubjectStore }      from '../stores/subjects'
+import { useSubSubjectStore }   from '../stores/subsubjects'
+import { useGradeStore }        from '../stores/grades'
+import { useGlobalStatesStore } from '../stores/globalStates'
+import { useAnalyticsStore }    from '../stores/analytics'
+
+
+import EditIsland from './EditIsland.vue'
+import DreamGradeIsland from './DreamGradeIsland.vue'
+
+const route  = useRoute()
+const router = useRouter()
+
+const globalStatesStore = useGlobalStatesStore()
+const yearStore         = useYearStore()
+const subjectStore      = useSubjectStore()
+const subSubjectStore   = useSubSubjectStore()
+const gradeStore        = useGradeStore()
+const analyticsStore    = useAnalyticsStore()
+
+const props = defineProps({
+    element:    { type: Object,  required: true },
+    isSelected: { type: Boolean, default: false },
+})
+const emit = defineEmits(['edit', 'delete', 'click'])
+
+const removeToggle   = ref(false)
+const elementRef     = ref(null)
+const islandTop      = ref(0)
+const islandLeft     = ref(0)
+const editMode       = ref(false)
+const longPressTimer = ref(null)
+const showActions    = ref(false)
+const LONG_PRESS_DURATION = 480
+
+watch(() => showActions.value, (val) => {
+    if (val && elementRef.value) {
+        const rect = elementRef.value.getBoundingClientRect()
+        // Center the pill horizontally over the element, just above it
+        islandTop.value  = rect.top - 8
+        islandLeft.value = rect.left + rect.width / 2
+    }
+})
+
+watch(() => globalStatesStore.removingElements, () => {
+    removeToggle.value = false
+})
+
+const elementCount = computed(() => {
+    if (route.name === 'years') return subjectStore.elementCountByYear?.[props.element.id] ?? 0
+    if (subjectStore.subjectsById[props.element.id]?.hasSubSubject)
+        return subSubjectStore.elementCountBySubject?.[props.element.id] ?? 0
+    return gradeStore.elementCountBySubject?.[props.element.id] ?? 0
+})
+
+const hasSubSubject = computed(() =>
+    route.name === 'subjects' && !!subjectStore.subjectsById?.[props.element.id]?.hasSubSubject
+)
+
+const hasWeight     = computed(() => route.name !== 'years')
+const hasTeacher    = computed(() => route.name === 'subjects')
+const hasSubElement = computed(() => route.name !== 'grades')
+const hasPlusPoints = computed(() => route.name !== 'grades')
+const hasDate       = computed(() => route.name === 'grades')
+
+const data = computed(() => {
+    switch (route.name) {
+        case 'years':       return subjectStore.averageByYear?.[props.element.id] ?? '-'
+        case 'subjects':    return hasSubSubject.value
+            ? subSubjectStore.averageBySubject?.[props.element.id] ?? '-'
+            : gradeStore.averageBySubject?.[props.element.id] ?? '-'
+        case 'subSubjects': return gradeStore.averageBySubject?.[props.element.id] ?? '-'
+        default:            return gradeStore.gradesById?.[props.element.id] ?? '-'
+    }
+})
+
+const dataLabel = computed(() => route.name === 'grades' ? 'Mark' : 'Average')
+
+const subElementName = computed(() => {
+    switch (route.name) {
+        case 'subjects':    return hasSubSubject.value ? 'Sub-subject' : 'Grade'
+        case 'subSubjects': return 'Grade'
+        default:            return 'Subject'
+    }
+})
+
+const plusPoints = computed(() => {
+    if (route.name === 'grades') return '-'
+    if (route.name === 'years')  return subjectStore.getPlusPointsByYear()?.[props.element.id] ?? '-'
+    return gradeStore.getPlusPointsBySubject()?.[props.element.id] ?? '-'
+})
+
+const navTo = computed(() => {
+    switch (route.name) {
+        case 'years':       return { name: 'subjects',    params: { yearId:    props.element.id } }
+        case 'subjects':    return hasSubSubject.value
+            ? { name: 'subSubjects', params: { subjectId: props.element.id } }
+            : { name: 'grades',      params: { subjectId: props.element.id } }
+        case 'subSubjects': return { name: 'grades',      params: { subjectId: props.element.id } }
+        default:            return route
+    }
+})
+
+const isIrelevant = computed(() => globalStatesStore.removingElements && !removeToggle.value)
+
+const improvement = computed(() => {
+    if (route.name != 'subjects' && route.name != 'subSubjects') return null
+    if (route.name == 'subjects') if (props.element.hasSubSubject) return null 
     
-    import { useYearStore } from '../stores/years'
-    import { useSubjectStore } from '../stores/subjects'
-    import { useSubSubjectStore } from '../stores/subsubjects'
-    import { useGradeStore } from '../stores/grades'
-    import { useGlobalStatesStore } from '../stores/globalStates'
+    const m = analyticsStore.gradeLRSlopesBySubject[props.element.id]
 
-    import EditIsland from './EditIsland.vue'
+    if (m > -0.05 && m < 0.05) return 0 
+    else if (m < 0) return -1 
+    else return 1
+})
 
-    const route = useRoute()
-    const router = useRouter()
-
-    const globalStatesStore = useGlobalStatesStore()
-    const yearStore = useYearStore()
-    const subjectStore = useSubjectStore()
-    const subSubjectStore = useSubSubjectStore()
-    const gradeStore = useGradeStore()
-
-    const props = defineProps({
-        element: {
-            type: Object, 
-            required: true
-        }, 
-        isSelected: {
-            type: Boolean, 
-            default: false
-        }
-    })
-    const emit = defineEmits(['edit', 'delete', 'click'])
-
-    const removeToggle = ref(false)
-    const elementRef = ref(null)
-    const islandTop = ref(0)
-    const islandLeft = ref(0)
-    const editMode = ref(false)
-    
-    const longPressTimer = ref(null)
-    const showActions = ref(false)
-    const LONG_PRESS_DURATION = 500
-
-    watch(() => showActions.value, (newVal) => {
-        if (newVal && elementRef.value) {
-            const rect = elementRef.value.getBoundingClientRect()
-            islandTop.value = rect.bottom + rect.height / 3
-            islandLeft.value = rect.left + rect.width / 1.15
-        }
-    })
-
-    watch(() => globalStatesStore.removingElements, (value) => {
-        removeToggle.value = false
-    })
-
-    const elementCount = computed(() => {
-        switch(route.name) {
-            case 'years': 
-                return subjectStore.elementCountByYear?.[props.element.id] ?? 0
-            default: 
-                if (subjectStore.subjectsById[props.element.id]?.hasSubSubject) {
-                    return subSubjectStore.elementCountBySubject?.[props.element.id] ?? 0
-                } else {
-                    return gradeStore.elementCountBySubject?.[props.element.id] ?? 0
-                }       
-        }
-    })
-    
-    const hasSubSubject = computed(() => {
-        if (!subjectStore.subjectsById?.[props.element.id]) return false
-        return route.name == 'subjects' && subjectStore.subjectsById?.[props.element.id].hasSubSubject
-    })
-
-    let hasWeight = computed(() => 'years' != route.name)
-    let hasTeacher = computed(() => 'subjects' == route.name)
-    let hasSubElement = computed(() => 'grades' != route.name)
-    let hasPlusPoints = computed(() => 'grades' != route.name)
-    let hasDate = computed(() => 'grades' == route.name)
-    let data = computed(() => {
-        switch(route.name) {
-            case 'years': 
-                return subjectStore.averageByYear?.[props.element.id] ?? '-'
-            case 'subjects': 
-                return hasSubSubject.value ? 
-                    subSubjectStore.averageBySubject?.[props.element.id] ?? '-': 
-                    gradeStore.averageBySubject?.[props.element.id] ?? '-'
-            case 'subSubjects': 
-                return gradeStore.averageBySubject?.[props.element.id] ?? '-'
-            default:  
-                return gradeStore.gradesById?.[props.element.id] ?? '-'
-        }
-    })
-    let dataLabel = computed(() => 'grades' == route.name ? 'Mark' : 'Average')
-    let subElementName = computed(() => {
-        switch(route.name) {
-            case 'subjects': 
-                return hasSubSubject.value ? 'Sub-subject' : 'Grade'
-            case 'subSubjects': 
-                return 'Grade'
-            default: 
-                return 'Subject'
-        }
-    })
-    let plusPoints = computed(() => {
-        switch(route.name) {
-            case 'grades' : 
-                break 
-            case 'years' : 
-                return subjectStore.getPlusPointsByYear()?.[props.element.id] ?? '-'
-            default : 
-                return gradeStore.getPlusPointsBySubject()?.[props.element.id] ?? '-'
-        }
-    })
-    let navTo = computed(() => {
-        switch (route.name) {
-            case 'years': 
-                return {name: 'subjects', params: {yearId: props.element.id}}
-            case 'subjects' : 
-                return hasSubSubject.value ? 
-                    {name: 'subSubjects', params: {subjectId: props.element.id}}: 
-                    {name: 'grades', params: {subjectId: props.element.id}}
-            case'subSubjects': 
-                return {name: 'grades', params: {subjectId: props.element.id}}
-            default: 
-                return route 
-        }
-    })
-    let isIrelevant = computed(() => globalStatesStore.removingElements && !removeToggle.value)
-
-    function onClick() {
-        emit('click', props.element)
-
-        if (globalStatesStore.removingElements) {
-            removeToggle.value = !removeToggle.value
-            globalStatesStore.toggleRemoveById(props.element.id) 
-        } else {
-            router.push(navTo.value)
-        }    
+function onClick() {
+    emit('click', props.element)
+    if (globalStatesStore.removingElements) {
+        removeToggle.value = !removeToggle.value
+        globalStatesStore.toggleRemoveById(props.element.id)
+    } else {
+        router.push(navTo.value)
     }
+}
 
-    function startLongPress() {
-        longPressTimer.value = setTimeout(() => {
-            showActions.value = true
-        }, LONG_PRESS_DURATION)
-    }   
+function startLongPress() {
+    longPressTimer.value = setTimeout(() => { showActions.value = true }, LONG_PRESS_DURATION)
+}
+function endLongPress()    { clearTimeout(longPressTimer.value) }
+function cancelLongPress() { clearTimeout(longPressTimer.value) }
+function closeActions()    { showActions.value = false }
 
-    function endLongPress() {
-        if (longPressTimer.value) {
-            clearTimeout(longPressTimer.value)
-        }
+function handleEdit() {
+    emit('edit', props.element)
+    editMode.value = true
+    closeActions()
+}
+
+function handleDelete() {
+    emit('delete', props.element)
+    const map = {
+        years:       () => yearStore.removeYearsById(new Set([props.element.id])),
+        subjects:    () => subjectStore.removeSubjectsById(new Set([props.element.id])),
+        subSubjects: () => subSubjectStore.removeSubSubjectsById(new Set([props.element.id])),
+        grades:      () => gradeStore.removeGradesByIds(new Set([props.element.id])),
     }
+    map[route.name]?.()
+    closeActions()
+}
 
-    function cancelLongPress() {
-        if (longPressTimer.value) {
-            clearTimeout(longPressTimer.value)
-        }
+function saveEdit(data) {
+    switch (route.name) {
+        case 'years':
+            if (data.name) yearStore.editYearById(props.element.id, { name: data.name }); break
+        case 'subjects':
+            if (data.name && data.weight) subjectStore.editSubjectById(props.element.id, { name: data.name, weight: data.weight }); break
+        case 'subSubjects':
+            if (data.name && data.weight) subSubjectStore.editSubSubjectById(props.element.id, { name: data.name, weight: data.weight }); break
+        case 'grades':
+            if (data.name && data.mark && data.weight && data.date) gradeStore.editGradeById(props.element.id, data); break
     }
-
-    function closeActions() {
-        showActions.value = false
-    }
-
-    function handleEdit() {
-        emit('edit', props.element)
-
-        editMode.value = true
-        closeActions()
-    }
-
-    function handleDelete() {
-        emit('delete', props.element)
-
-        switch(route.name) {
-            case 'years': 
-                yearStore.removeYearsById(new Set([props.element.id]))
-                break
-            case 'subjects': 
-                subjectStore.removeSubjectsById(new Set([props.element.id]))
-                break
-            case 'subSubjects': 
-                subSubjectStore.removeSubSubjectsById(new Set([props.element.id]))
-                break 
-            case 'grades': 
-                gradeStore.removeGradesByIds(new Set([props.element.id]))
-                break
-        }
-
-        closeActions()
-    }
-
-    function saveEdit(data) {
-        switch (route.name) {
-            case 'years': 
-                if (data.name) yearStore.editYearById(props.element.id, {name: data.name})
-                break
-            case 'subjects': 
-                if (data.name && data.weight) subjectStore.editSubjectById(props.element.id, {name: data.name, weight: data.weight})
-                break
-            case 'subSubjects': 
-                if (data.name && data.weight) subSubjectStore.editSubSubjectById(props.element.id, {name: data.name, weight: data.weight})
-                break 
-            case 'grades': 
-                if (data.name && data.mark && data.weight && data.date) gradeStore.editGradeById(props.element.id, data)
-                break
-        }     
-
-        closeActions()
-    }
-
+    closeActions()
+}
 </script>
 
 <style scoped>
-    .fade-enter-active,
-    .fade-leave-active {
-        transition: opacity 200ms ease;
-    }
+.action-pill {
+    position: fixed;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    gap: 1px;
+    padding: 4px 5px;
+    background: rgba(255, 255, 255, 0.98);
+    border: 1px solid #e4e4e7;
+    border-radius: 16px;
+    box-shadow:
+        0 0 0 1px rgba(0,0,0,0.03),
+        0 4px 12px rgba(0,0,0,0.08),
+        0 16px 40px rgba(0,0,0,0.10);
+    /* centered horizontally, floats above the element */
+    transform: translate(-50%, -100%);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
 
-    .fade-enter-from,
-    .fade-leave-to {
-        opacity: 0;
-    }
+.action-btn {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 12px;
+    border: none;
+    background: transparent;
+    border-radius: 11px;
+    cursor: pointer;
+    color: #3f3f46;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    transition: background 130ms ease, color 130ms ease;
+    white-space: nowrap;
+    -webkit-tap-highlight-color: transparent;
+}
+.action-btn:hover        { background: #f4f4f5; color: #18181b; }
+.action-btn:active       { background: #e4e4e7; }
+.action-btn--danger      { color: #dc2626; }
+.action-btn--danger:hover { background: #fff1f2; color: #b91c1c; }
+.action-btn--danger:active { background: #fee2e2; }
 
-    .popup-enter-active {
-        transition: all 200ms cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
+/* Transitions */
+.fade-enter-active, .fade-leave-active { transition: opacity 180ms ease; }
+.fade-enter-from, .fade-leave-to { opacity: 0; }
 
-    .popup-leave-active {
-        transition: all 150ms ease-out;
-    }
-
-    .popup-enter-from {
-        opacity: 0;
-        transform: translate(-50%, -100%) scale(0.9);
-    }
-
-    .popup-leave-to {
-        opacity: 0;
-        transform: translate(-50%, -100%) scale(0.9);
-    }
+.popup-enter-active {
+    transition: opacity 160ms ease, transform 220ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.popup-leave-active {
+    transition: opacity 120ms ease, transform 120ms ease;
+}
+.popup-enter-from {
+    opacity: 0;
+    transform: translate(-50%, -100%) scale(0.85);
+}
+.popup-leave-to {
+    opacity: 0;
+    transform: translate(-50%, -100%) scale(0.9);
+}
 </style>
