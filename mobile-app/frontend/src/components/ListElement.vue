@@ -41,12 +41,6 @@
                             <span class="text-[11px] text-zinc-300">·</span>
                         </template>
 
-                        <span v-if="hasTeacher" class="text-[11px] text-zinc-500 font-medium">brc</span>
-
-                        <template v-if="hasTeacher && hasWeight">
-                            <span class="text-[11px] text-zinc-300">·</span>
-                        </template>
-
                         <span
                             v-if="hasWeight"
                             class="inline-flex items-center text-[10px] font-semibold text-zinc-500 bg-zinc-100 rounded px-1.5 py-px tracking-wide"
@@ -59,15 +53,20 @@
                 <!-- Right: Plus · Score · Trend -->
                 <div class="flex items-center gap-2.5 flex-shrink-0">
                     <span
-                        v-if="hasPlusPoints && plusPoints !== '-'"
-                        class="text-[11px] font-semibold text-emerald-600 tracking-wide"
+                        v-if="hasPlusPoints && plusPoints !== '-' && settingsStore.showPluspoints"
+                        class="text-[11px] font-semibold  tracking-wide"
+                        :class="{
+                            'text-emerald-500': plusPoints > (route.name == 'years' ? settingsStore.coloring.yearMax : settingsStore.coloring.subjectMax), 
+                            'text-orange-500': plusPoints >= (route.name == 'years' ? settingsStore.coloring.yearMin : settingsStore.coloring.subjectMin) && plusPoints <= (route.name == 'years' ? settingsStore.coloring.yearMax : settingsStore.coloring.subjectMax), 
+                            'text-red-500': plusPoints < (route.name == 'years' ? settingsStore.coloring.yearMin : settingsStore.coloring.subjectMin) 
+                        }"
                     >
                         {{plusPoints < 0 ? '-' : '+'}}{{ Math.abs(plusPoints) }}
                     </span>
 
                     <div class="flex flex-col items-end">
                         <span class="text-[15px] font-semibold text-zinc-700 leading-none tracking-tight tabular-nums">
-                            {{ data === '-' ? '–' : (Math.round(data * 100) / 100).toFixed(2) }}
+                            {{ data === '-' ? '–' : (settingsStore.round(data)) }}
                         </span>
                         <span class="text-[9px] font-medium text-zinc-400 uppercase tracking-widest mt-0.5">
                             {{ dataLabel }}
@@ -89,6 +88,7 @@
                         <polyline v-else-if="improvement === -1" points="6 9 12 15 18 9"/>
                         <line    v-else x1="5" y1="12" x2="19" y2="12"/>
                     </svg>
+                    <div v-else v-if="route.name == 'subjects'" class="w-3.5 h-3.5 flex-shrink-0" />
                 </div>
             </div>
 
@@ -158,6 +158,7 @@ import { useSubSubjectStore }   from '../stores/subsubjects'
 import { useGradeStore }        from '../stores/grades'
 import { useGlobalStatesStore } from '../stores/globalStates'
 import { useAnalyticsStore }    from '../stores/analytics'
+import { useSettingsStore } from '../stores/settings'
 
 
 import EditIsland from './EditIsland.vue'
@@ -172,6 +173,7 @@ const subjectStore      = useSubjectStore()
 const subSubjectStore   = useSubSubjectStore()
 const gradeStore        = useGradeStore()
 const analyticsStore    = useAnalyticsStore()
+const settingsStore     = useSettingsStore()
 
 const props = defineProps({
     element:    { type: Object,  required: true },
@@ -263,9 +265,9 @@ const improvement = computed(() => {
     if (route.name == 'subjects') if (props.element.hasSubSubject) return null 
     
     const m = analyticsStore.gradeLRSlopesBySubject[props.element.id]
-
-    if (m > -0.05 && m < 0.05) return 0 
-    else if (m < 0) return -1 
+    
+    if ( !m || m > -0.05 && m < 0.05 ) return 0 
+    else if ( m < 0 ) return -1 
     else return 1
 })
 

@@ -7,7 +7,7 @@
         <div class="flex items-center gap-1 min-w-0">
             <button
                 v-if="canGoBack"
-                @click="router.back()"
+                @click="goBack()"
                 class="flex items-center justify-center w-7 h-7 -ml-1 flex-shrink-0 text-zinc-900 active:opacity-45 transition-opacity"
                 aria-label="Zurück"
             >
@@ -29,7 +29,7 @@
                 class="flex items-center justify-center w-6 h-6 transition-opacity active:opacity-45"
                 :class="globalStatesStore.removingElements ? 'text-red-500' : 'text-zinc-900'"
             >
-                <svg class="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <svg class="w-[17px] h-[17px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
                     <polyline points="3 6 5 6 21 6"/>
                     <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
                     <path d="M10 11v6"/>
@@ -44,7 +44,7 @@
                 @click="handleDreamGrade"
                 class="flex items-center justify-center w-6 h-6 text-zinc-900 active:opacity-45 transition-opacity"
             >
-                <svg class="w-[19px] h-[19px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <svg class="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
                     <rect x="4" y="2" width="16" height="20" rx="2"/>
                     <line x1="8" y1="6" x2="16" y2="6"/>
                     <line x1="8" y1="11" x2="9" y2="11"/>
@@ -102,7 +102,7 @@ const globalStatesStore = useGlobalStatesStore()
 const dreamGradeMode = ref(false)
 
 const showActions = computed(() => !(/add.*|user|analytics/.test(route.name)))
-const canGoBack   = computed(() => route.name !== 'years' && route.name !== 'user')
+const canGoBack   = computed(() => route.name !== 'years' && route.name !== 'user' && route.name !== 'analytics')
 
 const pageName = computed(() => {
     switch (route.name) {
@@ -120,6 +120,7 @@ const pageName = computed(() => {
         case 'addGrade':      return 'ADD GRADE'
         case 'user':          return 'PROFILE'
         case 'analytics':     return 'ANALYTICS'
+        case 'privacyPolicy': return 'PRIVACY POLICY'
         default:              return '404'
     }
 })
@@ -140,6 +141,35 @@ function removeElements() {
 
 function handleDreamGrade() {
     dreamGradeMode.value = true
+}
+
+const routeParent = {
+    'subjects':    () => '/',
+    'subSubjects': () => {
+        const id = subjectStore.subjectsById[route.params.subjectId]?.yearId
+        return id ? `/subjects/${id}` : '/' 
+    }, 
+    'grades': () => {
+        let id = subjectStore.subjectsById[route.params.subjectId]?.yearId
+        if (id) return `/subjects/${id}`
+        else {
+            id = subSubjectStore.subSubjectById[route.params.subjectId]?.subjectId
+            return id ? `/sub-subjects/${id}` : '/'
+        }
+    },
+    'addYear':     () => '/',
+    'addSubject':  () => `/subjects/${route.params.yearId}`,
+    'addSubSubject': () => `/sub-subjects/${route.params.subjectId}`,
+    'addGrade':    () => `/grades/${route.params.subjectId}`,
+}
+
+function goBack() {
+    const parent = routeParent[route.name]
+    if (parent) {
+        router.push(parent())
+    } else {
+        router.push('/')
+    }
 }
 
 </script>

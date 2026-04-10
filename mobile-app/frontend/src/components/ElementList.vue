@@ -1,34 +1,21 @@
 <template>
-    <main class="flex flex-col h-full">
+    <div v-if="elements.length < 1" class="flex-1 flex items-center justify-center">
+        <p class="text-[13px] text-zinc-400">No {{ elementType != 'subSubject' ? elementType + 's' : 'sub-subjects' }} yet.</p>
+    </div>
+    <main v-else class="flex flex-col h-full">
 
         <!-- Summary Strip -->
         <div v-if="showStrip" class="flex-shrink-0 flex justify-center items-center bg-white border-b border-zinc-200 px-5 py-3 gap-0">
 
             <!-- Schnitt -->
-            <div class="flex flex-col gap-0.5">
-                <span class="text-[17px] font-bold text-zinc-900 leading-none tracking-tight tabular-nums">{{ average }}</span>
+            <div class="flex flex-col gap-0.5 items-center">
+                <span class="text-[17px] font-bold text-zinc-900 leading-none tracking-tight tabular-nums">{{ average ? average : '-' }}</span>
                 <span class="text-[9px] font-medium text-zinc-400 uppercase tracking-widest">Average</span>
             </div>
 
-            <div class="w-px h-7 bg-zinc-200 mx-4 flex-shrink-0" />
-
-            <!-- Punkte -->
-            <div class="flex flex-col gap-0.5">
-                <span class="text-[17px] font-bold text-zinc-900 leading-none tracking-tight tabular-nums">{{ pluspoints }}</span>
-                <span class="text-[9px] font-medium text-zinc-400 uppercase tracking-widest">Pluspoints</span>
-            </div>
-
-            <div class="w-px h-7 bg-zinc-200 mx-4 flex-shrink-0" />
-
-            <!-- Elemente -->
-            <div class="flex flex-col gap-0.5">
-                <span class="text-[17px] font-bold text-zinc-900 leading-none tracking-tight tabular-nums">{{ elementCount }}</span>
-                <span class="text-[9px] font-medium text-zinc-400 uppercase tracking-widest">Elements</span>
-            </div>
-
-            <!-- Sparkline (nur bei subject/grade) -->
+            <!-- Sparkline -->
             <template v-if="showSparkline && sparkData.length > 1">
-                <div class="w-px h-7 bg-zinc-200 mx-4 flex-shrink-0" />
+                <div class="mx-2 flex-shrink-0" />
                 <div class="flex flex-col gap-0.5 items-center">
                     <div style="width: 72px; height: 28px; position: relative;">
                         <canvas ref="sparkRef"></canvas>
@@ -36,8 +23,32 @@
                 </div>
             </template>
 
-        </div>
+            <!-- Punkte -->
+            <template v-if="settingsStore.showPluspoints">
+                <div class="w-px h-7 bg-zinc-200 mx-4 flex-shrink-0" />
+                <div class="flex flex-col gap-0.5 items-center">
+                    <span
+                        class="text-[17px] font-bold leading-none tracking-tight tabular-nums"
+                        :class="{
+                            'text-emerald-500': pluspoints.value > (props.elementType == 'subject' ? settingsStore.coloring.yearMax : settingsStore.coloring.subjectMax),
+                            'text-orange-500': pluspoints.value >= (props.elementType == 'subject' ? settingsStore.coloring.yearMin : settingsStore.coloring.subjectMin) && pluspoints.value <= (props.elementType == 'subject' ? settingsStore.coloring.yearMax : settingsStore.coloring.subjectMax),
+                            'text-red-500': pluspoints.value < (props.elementType == 'subject' ? settingsStore.coloring.yearMin : settingsStore.coloring.subjectMin), 
+                            'text-zinc-900': pluspoints.value == null, 
+                        }"
+                    >{{ pluspoints.display }}</span>
+                    <span class="text-[9px] font-medium text-zinc-400 uppercase tracking-widest">Pluspoints</span>
+                </div>
+            </template>
 
+            <div class="w-px h-7 bg-zinc-200 mx-4 flex-shrink-0" />
+
+            <!-- Elemente -->
+            <div class="flex flex-col gap-0.5 items-center">
+                <span class="text-[17px] font-bold text-zinc-900 leading-none tracking-tight tabular-nums">{{ elementCount }}</span>
+                <span class="text-[9px] font-medium text-zinc-400 uppercase tracking-widest">Elements</span>
+            </div>
+        </div>
+        
         <!-- Scrollbare Liste -->
         <div class="flex-1 overflow-y-auto">
             <div v-for="element in elements" :key="element.id">
@@ -57,6 +68,7 @@ import { useSubjectStore }    from '../stores/subjects'
 import { useGradeStore }      from '../stores/grades'
 import { useSubSubjectStore } from '../stores/subsubjects'
 import { useAnalyticsStore }  from '../stores/analytics'
+import { useSettingsStore } from '../stores/settings'
 
 import ListElement from './ListElement.vue'
 
@@ -65,6 +77,7 @@ const subjectStore    = useSubjectStore()
 const subSubjectStore = useSubSubjectStore()
 const gradeStore      = useGradeStore()
 const analyticsStore  = useAnalyticsStore()
+const settingsStore   = useSettingsStore()
 
 const props = defineProps({
     elementType: { type: String, required: true },
@@ -73,25 +86,43 @@ const props = defineProps({
 
 const elements = computed(() => {
     switch (props.elementType) {
-        case 'year':       return yearStore.years
-        case 'subject':    return subjectStore.subjectsByYear[props.addrId]
-        case 'subSubject': return subSubjectStore.subSubjectsBySubject[props.addrId]
-        case 'grade':      return gradeStore.gradesBySubject[props.addrId]
+        case 'year':    
+            const years = yearStore.years   
+            return years ? settingsStore.sortYear(years) : [] 
+        case 'subject':    
+            const subjects = subjectStore.subjectsByYear[props.addrId]
+            return subjects ? settingsStore.sortSubject(subjects) : []
+        case 'subSubject': 
+            const subSubjects = subSubjectStore.subSubjectsBySubject[props.addrId]
+            return subSubjects ? settingsStore.sortSubject(subSubjects) : []
+        case 'grade':      
+            const grades = gradeStore.gradesBySubject[props.addrId]
+            return grades ? settingsStore.sortGrade(grades) : []
     }
 })
 
 const elementCount = computed(() => elements.value.length)
 
 const average = computed(() => {
+    let avg = null
+    
     switch (props.elementType) {
-        case 'subject':    return Math.round(subjectStore.averageByYear[props.addrId] * 100) / 100
-        case 'subSubject': return Math.round(subSubjectStore.averageBySubject[props.addrId] * 100) / 100
-        case 'grade':      return Math.round(gradeStore.averageBySubject[props.addrId] * 100) / 100
+        case 'subject':    
+            avg = settingsStore.round(subjectStore.averageByYear[props.addrId])
+            break
+        case 'subSubject': 
+            avg = settingsStore.round(subSubjectStore.averageBySubject[props.addrId])
+            break 
+        case 'grade':      
+            avg = settingsStore.round(gradeStore.averageBySubject[props.addrId])
+            break
     }
+
+    return avg != null ? avg : '-'
 })
 
 const pluspoints = computed(() => {
-    let pp = '-'
+    let pp = null
 
     switch (props.elementType) {
         case 'subject':
@@ -102,11 +133,11 @@ const pluspoints = computed(() => {
             break
     }
 
-    if (pp === '-') return pp
-    else return `${pp < 0 ? '-' : '+'}${Math.abs(pp)}`
+    if (pp == null) return {display: '-', value: null}
+    else return {display: `${pp < 0 ? '-' : '+'}${Math.abs(pp)}`, value: pp}
 })
 
-const showStrip = computed(() => props.elementType !== 'year')
+const showStrip = computed(() => props.elementType !== 'year' && elements.value.length > 0)
 
 const showSparkline = computed(() =>
     props.elementType === 'grade'

@@ -1,19 +1,22 @@
 <template>
-  <div class="h-screen flex flex-col">
-    <AppBar />
+  <div class="flex justify-center bg-zinc-100" style="height: calc(var(--vh, 1dvh) * 100);">
+    <div class="relative w-full max-w-md flex flex-col bg-white shadow-xl" style="height: calc(var(--vh, 1dvh) * 100);">
+      
+      <AppBar />
 
-    <main class="flex-1 min-h-0 flex overflow-y-auto">
-      <router-view v-slot="{ Component }">
-        <component :is="Component" class="flex-1 min-h-0" />
-      </router-view>
-    </main>
+      <main class="flex-1 min-h-0 flex overflow-hidden">
+        <router-view v-slot="{ Component }">
+          <component :is="Component" class="flex-1 min-h-0" />
+        </router-view>
+      </main>
 
-    <BottomBar />
+      <BottomBar />
 
-    <RemovingPanel />
+      <RemovingPanel />
+
+    </div>
   </div>
 </template>
-
 <script setup>
 
   import { watch, onMounted } from 'vue'

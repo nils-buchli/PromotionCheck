@@ -94,20 +94,10 @@
                                 </p>
                             </div>
 
-                            <!-- Datum -->
+                            <!-- Date -->
                             <div v-if="hasDate" class="mt-1">
                                 <p class="text-[11px] font-semibold text-zinc-400 uppercase tracking-widest mb-2 px-1">Date</p>
-                                <div class="bg-white rounded-2xl border border-zinc-200 overflow-hidden">
-                                    <input
-                                        v-model="form.date"
-                                        type="date"
-                                        @blur="touched.date = true"
-                                        :class="[
-                                            'w-full px-4 py-3.5 text-[15px] bg-transparent focus:outline-none',
-                                            isDateInvalid ? 'text-red-500' : 'text-zinc-900'
-                                        ]"
-                                    />
-                                </div>
+                                <DateSelector v-model="form.date" @blur="touched = true" />
                                 <p
                                     class="text-[11px] text-red-400 mt-1.5 px-1 transition-opacity duration-150"
                                     :class="isDateInvalid ? 'opacity-100' : 'opacity-0'"
@@ -145,6 +135,8 @@
 import { ref, computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
 
+import DateSelector from '../components/DateSelector.vue' 
+
 const route = useRoute()
 
 function getToday() {
@@ -152,13 +144,7 @@ function getToday() {
     const year  = today.getFullYear()
     const month = String(today.getMonth() + 1).padStart(2, '0')
     const day   = String(today.getDate()).padStart(2, '0')
-    return `${year}-${month}-${day}`
-}
-
-function convertToInputFormat(dateStr) {
-    if (!dateStr) return getToday()
-    const [day, month, year] = dateStr.split('.')
-    return `${year}-${month}-${day}`
+    return `${day}.${month}.${year}`
 }
 
 const props = defineProps({
@@ -183,7 +169,7 @@ watch(() => props.element, (el) => {
         title:  el.name   || '',
         weight: el.weight ?? 1.0,
         mark:   el.mark   ?? 0,
-        date:   convertToInputFormat(el.date),
+        date:   el.date   || getToday(),
     }
     touched.value = { title: false, weight: false, mark: false, date: false }
 }, { immediate: true })
@@ -212,24 +198,12 @@ function save() {
     if (hasMark.value   && isMarkInvalid.value)   return
     if (hasDate.value   && isDateInvalid.value)   return
 
-    let finalDate = form.value.date || getToday()
-    const [year, month, day] = finalDate.split('-')
-    finalDate = `${day}.${month}.${year}`
-
     emit('save', {
         name:   form.value.title,
         weight: form.value.weight,
         mark:   form.value.mark,
-        date:   finalDate,
+        date:   form.value.date,
     })
     close()
 }
 </script>
-
-<style scoped>
-.fade-enter-active, .fade-leave-active { transition: opacity 0.2s ease; }
-.fade-enter-from,  .fade-leave-to      { opacity: 0; }
-
-.popup-enter-active, .popup-leave-active { transition: all 0.2s ease; }
-.popup-enter-from,   .popup-leave-to     { opacity: 0; transform: scale(0.95); }
-</style>

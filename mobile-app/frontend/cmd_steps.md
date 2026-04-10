@@ -37,3 +37,6 @@ cd C:\dev\pluspointsFp\mobile-app\backend; .\venv\Scripts\Activate.ps1; python a
 
 # Flask Log 
 journalctl -u flask_app.service -f
+
+# SQLAlchemy 
+psql -U nils -d pluspointsdb -h localhost

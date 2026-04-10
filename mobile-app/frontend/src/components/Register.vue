@@ -1,11 +1,25 @@
 <template>
-    <div class="flex flex-col flex-1 bg-zinc-50">
+    <div class="flex flex-col flex-1 bg-zinc-50 overflow-y-auto">
 
         <!-- Server error -->
         <div v-if="serverError" class="mt-6 mx-5">
             <div class="bg-red-50 rounded-2xl border border-red-200 px-4 py-3.5">
                 <p class="text-[13px] text-red-500">{{ serverError }}</p>
             </div>
+        </div>
+
+        <div class="mx-5 mt-6">
+            <button
+                type="button"
+                @click="$emit('back')"
+                class="flex items-center gap-1.5 text-zinc-400 active:text-zinc-600 transition-colors"
+                style="-webkit-tap-highlight-color: transparent;"
+            >
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M15 18l-6-6 6-6"/>
+                </svg>
+                <span class="text-[13px] font-medium">Back</span>
+            </button>
         </div>
 
         <!-- Username -->
@@ -15,7 +29,6 @@
                 <input
                     v-model="username"
                     type="text"
-                    autofocus
                     required
                     placeholder="Username"
                     @blur="touchedFields.username = true"
@@ -72,6 +85,45 @@
             </p>
         </div>
 
+        <!-- Privacy Policy & Terms of Service Checkbox -->
+        <div class="mx-5 mt-4 flex items-start gap-3">
+            <button
+                type="button"
+                @click="agreedToPolicy = !agreedToPolicy"
+                :class="[
+                    'mt-0.5 w-5 h-5 rounded-md border flex-shrink-0 flex items-center justify-center transition-colors duration-150',
+                    agreedToPolicy
+                        ? 'bg-zinc-800 border-zinc-800'
+                        : 'bg-white border-zinc-300'
+                ]"
+                style="-webkit-tap-highlight-color: transparent;"
+            >
+                <svg v-if="agreedToPolicy" class="w-3 h-3 text-white" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M2 6l3 3 5-5"/>
+                </svg>
+            </button>
+            <p class="text-[13px] text-zinc-400 leading-snug">
+                I have read and agree to the
+                <button
+                    type="button"
+                    @click="$emit('show-privacy')"
+                    class="text-zinc-700 font-medium underline underline-offset-2"
+                    style="-webkit-tap-highlight-color: transparent;"
+                >
+                    Privacy Policy
+                </button>
+                and
+                <button
+                    type="button"
+                    @click="$emit('show-terms')"
+                    class="text-zinc-700 font-medium underline underline-offset-2"
+                    style="-webkit-tap-highlight-color: transparent;"
+                >
+                    Terms of Service
+                </button>
+            </p>
+        </div>
+
         <!-- Submit -->
         <div class="mx-5 mt-4">
             <button
@@ -104,7 +156,7 @@
 import { ref, computed } from 'vue'
 import { useUserStore } from '../stores/userStore'
 
-defineEmits(['switch-to-login'])
+defineEmits(['switch-to-login', 'back', 'show-privacy', 'show-terms'])
 
 const userStore = useUserStore()
 
@@ -112,6 +164,7 @@ const username     = ref('')
 const password     = ref('')
 const showPassword = ref(false)
 const serverError  = ref('')
+const agreedToPolicy = ref(false)
 
 const touchedFields = ref({ username: false, password: false })
 
@@ -136,6 +189,7 @@ async function submit() {
     serverError.value = ''
 
     if (isUsernameInvalid.value || isPasswordInvalid.value) return
+    if (!agreedToPolicy.value) return 
 
     const response = await fetch('/api/register', {
         method: 'POST',

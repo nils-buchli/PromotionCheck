@@ -33,22 +33,6 @@
             <span class="dot" :class="isActive('analytics') ? 'opacity-100' : 'opacity-0'" />
         </button>
 
-        <!-- Teachers -->
-        <button
-            @click="teachers"
-            class="nav-btn"
-            :class="isActive('teachers') ? 'text-zinc-900' : 'text-zinc-400'"
-            aria-label="Lehrpersonen"
-        >
-            <svg class="w-[22px] h-[22px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-                <circle cx="9" cy="7" r="4"/>
-                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-            </svg>
-            <span class="dot" :class="isActive('teachers') ? 'opacity-100' : 'opacity-0'" />
-        </button>
-
         <!-- Profile -->
         <button
             @click="user"
@@ -69,6 +53,10 @@
 import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
+import { useGlobalStatesStore } from '../stores/globalStates'
+
+const globalStateStore = useGlobalStatesStore()
+
 const route  = useRoute()
 const router = useRouter()
 
@@ -79,10 +67,18 @@ function isActive(name) {
     return route.name === name
 }
 
-function home()      { router.push('/') }
-function user()      { router.push('/user') }
-function analytics() { router.push('/analytics') }
-function teachers()  { router.push('/teachers') }
+function home() { 
+    if (!(['user', 'analytics'].includes(route.name))) router.push('/')
+    else router.push(globalStateStore.homeRoute) 
+}
+function user() { 
+    if (!(['user', 'analytics'].includes(route.name))) globalStateStore.homeRoute = route.fullPath
+    router.push('/user') 
+}
+function analytics() { 
+    if (!(['user', 'analytics'].includes(route.name))) globalStateStore.homeRoute = route.fullPath
+    router.push('/analytics') 
+}
 </script>
 
 <style scoped>

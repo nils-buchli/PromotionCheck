@@ -6,6 +6,7 @@ import { useSubSubjectStore } from './subsubjects'
 import { useSubjectStore } from './subjects'
 import { useAnalyticsStore } from './analytics'
 import db from '../services/db'
+import { useSettingsStore } from './settings'
 
 
 export const useGradeStore = defineStore('gradeStore', {
@@ -114,10 +115,11 @@ export const useGradeStore = defineStore('gradeStore', {
         getPlusPointsBySubject() {
             const map =  {}
             const subSubjectStore = useSubSubjectStore()
+            const settingsStore = useSettingsStore()
 
             for (const [id, avg] of [...Object.entries(this.averageBySubject), ...Object.entries(subSubjectStore.averageBySubject)]) {
                 const diff = Math.round((avg - 4) * 2) / 2  
-                map[id] = diff < 0 ? diff * 2 : diff 
+                map[id] = diff < 0 ? diff * settingsStore.minusPointFactor : diff 
             }
             
             return map

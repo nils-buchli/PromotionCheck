@@ -1,0 +1,12 @@
+datetime
+os 
+mimetypes
+flask
+flask_cors
+flask_sqlalchemy
+flask_jwt_extended
+flask_socketio
+redis
+werkzeug.security 
+uuid
+sqlalchemy

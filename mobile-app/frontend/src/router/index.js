@@ -86,15 +86,16 @@ const routes = [
     component: Error
   }, 
   {
-      path: '/:pathMatch(.*)*',
-      redirect: to => ({
-        name: 'error', 
-        query: {
-            m: '404'
-        }, 
-        params: {}
-      })
-   }
+    path: '/:pathMatch(.*)*',
+    redirect: to => ({
+      name: 'error', 
+      query: {
+          m: '404'
+      }, 
+      params: {}
+    })
+   }, 
+   
 
 ]
 

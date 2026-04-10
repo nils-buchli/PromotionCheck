@@ -82,23 +82,12 @@
         <!-- Date -->
         <div class="mt-2 mx-5">
             <p class="text-[11px] font-semibold text-zinc-400 uppercase tracking-widest mb-2 px-1">Date</p>
-            <div class="bg-white rounded-2xl border border-zinc-200 overflow-hidden">
-                <input
-                    v-model="date"
-                    type="date"
-                    required
-                    @blur="touched = true"
-                    :class="[
-                        'w-full px-4 py-3.5 text-[15px] text-zinc-900 bg-transparent focus:outline-none',
-                        isDateInvalid ? 'text-red-500' : ''
-                    ]"
-                />
-            </div>
+            <DateSelector v-model="date" @blur="touched = true" />
             <p
                 class="text-[11px] text-red-400 mt-1.5 px-1 transition-opacity duration-150"
                 :class="isDateInvalid ? 'opacity-100' : 'opacity-0'"
             >
-                Bitte ein Datum eingeben.
+                Please enter a date.
             </p>
         </div>
 
@@ -122,13 +111,14 @@ import { useRoute, useRouter } from 'vue-router'
 import { computed, ref } from 'vue'
 
 import { useGradeStore } from '../stores/grades'
+import DateSelector from '../components/DateSelector.vue'
 
 function getToday() {
     const today = new Date()
     const year = today.getFullYear()
     const month = String(today.getMonth() + 1).padStart(2, '0')
     const day = String(today.getDate()).padStart(2, '0')
-    return `${year}-${month}-${day}`
+    return `${day}.${month}.${year}`
 }
 
 const route = useRoute()
@@ -141,12 +131,6 @@ const weight  = ref(1.0)
 const date    = ref(getToday())
 const touched = ref(false)
 
-const formattedDate = computed(() => {
-    if (!date.value) return ''
-    const [year, month, day] = date.value.split('-')
-    return `${day}.${month}.${year}`
-})
-
 const isNameInvalid   = computed(() => touched.value && !name.value.trim())
 const isMarkInvalid   = computed(() => touched.value && !mark.value)
 const isWeightInvalid = computed(() => touched.value && !weight.value)
@@ -156,7 +140,7 @@ async function submit() {
     touched.value = true
     if (isNameInvalid.value || isMarkInvalid.value || isWeightInvalid.value || isDateInvalid.value) return
 
-    await gradeStore.addGrade(name.value, mark.value, weight.value, formattedDate.value, route.params.subjectId)
+    await gradeStore.addGrade(name.value, mark.value, weight.value, date.value, route.params.subjectId)
 
     router.back()
 }

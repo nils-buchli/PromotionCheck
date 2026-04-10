@@ -1,11 +1,25 @@
 <template>
-    <div class="flex flex-col flex-1 bg-zinc-50">
+    <div class="flex flex-col flex-1 bg-zinc-50 overflow-y-auto">
 
         <!-- Server error -->
         <div v-if="serverError" class="mt-6 mx-5">
             <div class="bg-red-50 rounded-2xl border border-red-200 px-4 py-3.5">
                 <p class="text-[13px] text-red-500">{{ serverError }}</p>
             </div>
+        </div>
+
+        <div class="mx-5 mt-6">
+            <button
+                type="button"
+                @click="$emit('back')"
+                class="flex items-center gap-1.5 text-zinc-400 active:text-zinc-600 transition-colors"
+                style="-webkit-tap-highlight-color: transparent;"
+            >
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M15 18l-6-6 6-6"/>
+                </svg>
+                <span class="text-[13px] font-medium">Back</span>
+            </button>
         </div>
 
         <!-- Username -->
@@ -103,7 +117,7 @@
 import { ref, computed } from 'vue'
 import { useUserStore } from '../stores/userStore'
 
-defineEmits(['switch-to-register'])
+defineEmits(['switch-to-register', 'back']) 
 
 const userStore = useUserStore()
 

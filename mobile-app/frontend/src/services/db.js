@@ -35,8 +35,10 @@ class DBService {
     await this.db.open()
 
     await this.createTables()
+    await this.initTables()
 
     this.userStore = useUserStore()
+
   }
 
   async _saveToStore() {
@@ -48,6 +50,15 @@ class DBService {
     await this.db.execute(`CREATE TABLE IF NOT EXISTS subjects (id TEXT PRIMARY KEY, year_id TEXT FOREIN KEY, title TEXT, weight REAL, has_sub_subjects BOOLEAN, synced INTEGER DEFAULT 0);`)
     await this.db.execute(`CREATE TABLE IF NOT EXISTS sub_subjects (id TEXT PRIMARY KEY, subject_id TEXT FOREIN KEY, title TEXT, weight REAL, synced INTEGER DEFAULT 0);`)
     await this.db.execute(`CREATE TABLE IF NOT EXISTS grades (id TEXT PRIMARY KEY, subject_id TEXT FOREIN KEY, title TEXT, mark REAL, weight REAL, date TEXT, synced INTEGER DEFAULT 0);`)
+    await this.db.execute(`CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT);`)
+  }
+
+  async initTables() {
+    await this.db.run(`INSERT OR IGNORE INTO settings (key) VALUES ('round_to_ths');`)
+    await this.db.run(`INSERT OR IGNORE INTO settings (key) VALUES ('double_compensation');`)
+    await this.db.run(`INSERT OR IGNORE INTO settings (key) VALUES ('show_pluspoints');`)
+    await this.db.run(`INSERT OR IGNORE INTO settings (key) VALUES ('coloring');`)
+    await this.db.run(`INSERT OR IGNORE INTO settings (key) VALUES ('sorting');`)
   }
 
   async addYear(id, title) {
@@ -138,6 +149,8 @@ class DBService {
         await this.db.run(`UPDATE ${this.TABLES[route]} SET title=?, weight=? WHERE id=?`, [data.title, data.weight, id])
     }
 
+    await this._saveToStore()
+
     if (this.userStore.isLoggedIn) {
       const token = localStorage.getItem('access_token')
       const response = await fetch(`/api/${this.TABLES[route].replace('_', '-')}`, {
@@ -180,6 +193,25 @@ class DBService {
   async getGrades() {
     const res = await this.db.query(`SELECT * FROM grades;`)
     return res.values || []
+  }
+
+  // Possible keys for settings table: round_to_ths, double_compensation, show_pluspoints, coloring, sorting
+  async changeSetting(key, new_value) {
+    await this.db.run(`UPDATE settings SET value=? WHERE key=?;`, [new_value, key])
+    await this._saveToStore()
+  }
+
+  async getSetting(key) {
+    const res = await this.db.query(`SELECT value FROM settings WHERE key=?`, [key])
+    return res.values[0]?.value || null
+  }
+
+  async clearData() {
+    await this.db.run(`DELETE FROM grades;`)
+    await this.db.run(`DELETE FROM subjects;`)
+    await this.db.run(`DELETE FROM sub_subjects;`)
+    await this.db.run(`DELETE FROM years;`)
+    this._saveToStore()
   }
 }
 

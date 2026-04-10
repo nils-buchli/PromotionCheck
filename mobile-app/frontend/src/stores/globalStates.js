@@ -4,7 +4,9 @@ export const useGlobalStatesStore = defineStore('globalStateStore', {
     state: () => ({
         removingElements: false, 
         removeIds: new Set(), 
-        initComplete: false,    
+        initComplete: false,
+        homeRoute: '/', 
+        selectedAnalyticsYearId: null,     
     }), 
 
     getters: {

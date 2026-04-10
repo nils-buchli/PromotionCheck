@@ -26,7 +26,13 @@ export class SocketService {
         
         // sync on event
         this.socket.on('sync_required', async (data) => {
-            await sync.sync() 
+            if (userStore.isLoggedIn) {
+                await sync.sync() 
+            } 
+        })
+
+        this.socket.on('reload_required', (data) => {
+            window.location.reload()
         })
     }
 }

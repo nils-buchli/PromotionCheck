@@ -6,6 +6,7 @@ import { useGradeStore } from './grades'
 import { useSubSubjectStore } from './subsubjects'
 import { computed } from 'vue'
 import db from '../services/db'
+import { useSettingsStore } from './settings'
 
 export const useSubjectStore = defineStore('subjectStore', {
     state: () => ({
@@ -105,14 +106,15 @@ export const useSubjectStore = defineStore('subjectStore', {
             const map = {}
             const gradeStore = useGradeStore()
             const subSubjectStore = useSubSubjectStore()
+            const settingsStore = useSettingsStore()
 
-            for (const [subjectId, avg] of Object.entries(gradeStore.averageBySubject)) {
+            for (const [subjectId, avg] of Object.entries({...gradeStore.averageBySubject, ...subSubjectStore.averageBySubject})) {
                 const diff = Math.round((avg - 4) * 2) / 2
-                const subject = this.subjectsById?.[subjectId] ?? this.subjectsById?.[subSubjectStore.subSubjectById?.[subjectId]?.subjectId]       
+                const subject = this.subjectsById?.[subjectId]  
                 
                 if (subject) {
                     map[subject.yearId] ??= 0
-                    map[subject.yearId] += diff < 0 ? diff * 2 : diff
+                    map[subject.yearId] += diff < 0 ? diff * settingsStore.minusPointFactor : diff
                 }
             }
 

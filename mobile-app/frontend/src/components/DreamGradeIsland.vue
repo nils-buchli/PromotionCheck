@@ -78,7 +78,7 @@
                   class="text-[22px] font-semibold"
                   :class="neededGrade !== null && neededGrade > 6 ? 'text-red-500' : 'text-zinc-900'"
                 >
-                  {{ neededGrade !== null ? neededGrade.toFixed(2) : '–' }}
+                  {{ neededGrade !== null ? settingsStore.round(neededGrade) : '–' }}
                 </span>
               </div>
 
@@ -104,8 +104,10 @@
 <script setup>
 import { ref, computed, watch } from 'vue'
 import { useGradeStore } from '../stores/grades'
+import { useSettingsStore } from '../stores/settings'
 
 const gradeStore = useGradeStore()
+const settingsStore = useSettingsStore()
 
 const props = defineProps({
   isOpen: { type: Boolean, required: true },

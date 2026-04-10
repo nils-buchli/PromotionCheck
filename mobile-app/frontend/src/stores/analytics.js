@@ -5,8 +5,6 @@ import { useSubSubjectStore } from './subsubjects'
 import { useGradeStore } from './grades'
 import { useYearStore } from './years'
 
-import * as simpleStatistics from 'simple-statistics'
-
 function weightedLinearReggression(xs, ys, ws) {
     const wSum = ws.reduce((a, w) => a + w, 0)
 
@@ -19,6 +17,52 @@ function weightedLinearReggression(xs, ys, ws) {
     return denom === 0 ? 0 : num / denom
 }
 
+function calStructure(storage, top_id, depth, ctx) {
+    if (depth > 3) return 
+
+    const { gradesBySubject, yearStore, subjectStore, subSubjectStore } = ctx
+
+    let elementList = []
+    
+    if (depth === 0) {
+        const year = yearStore.yearsById[top_id]
+        if (!year) return 
+        elementList = top_id ? [year] : yearStore.years
+    } else if (depth === 1) {
+        elementList = subjectStore.subjectsByYear[top_id]
+    } else if (depth === 2) {
+        elementList = subSubjectStore.subSubjectsBySubject[top_id]
+    } else if (depth === 3) {
+        elementList = gradesBySubject[top_id]
+    }
+    
+    // console.log(`ELEMENT LIST: ${JSON.stringify(elementList)}`)
+    // Stop tree if top_id has no children
+    if (!elementList) return 
+    for (const element of elementList) {
+        // Create e_sum, w_sum and storage for sub element for every id
+        if (depth !== 3) storage.data[element.id] = {e_sum: 0, w_sum: 0, data: {}}
+
+        // Skip subSubject if there is none
+        const nextDepth = (depth === 1 && !element.hasSubSubjects) ? depth + 2 : depth + 1 
+        
+        // Recursivly go over the sub elements of every element
+        calStructure(storage.data[element.id], element.id, nextDepth, ctx)
+
+        // update e_- & w_sum of top element
+        if (depth === 3) {
+            storage.e_sum += element.mark * element.weight
+            storage.w_sum += element.weight
+        } else {
+            if (storage.data[element.id].w_sum !== 0) {
+                storage.e_sum += (storage.data[element.id].e_sum / storage.data[element.id].w_sum) * (element.weight ?? 1)
+                storage.w_sum += element.weight ?? 1 
+            }
+        }
+        
+    }
+} 
+
 export const useAnalyticsStore = defineStore('analyticsStore', {
     state: () => ({
         structuresAndDateByYear: {},
@@ -26,14 +70,42 @@ export const useAnalyticsStore = defineStore('analyticsStore', {
 
     getters: {
         yearAverages: (state) => {
-            const map = {}
+            const gradeStore    = useGradeStore()
+            const subjectStore  = useSubjectStore()
+            const subSubjectStore = useSubSubjectStore()
+            const yearStore     = useYearStore()
 
-            for (const [yearId, dataList] of Object.entries(state.structuresAndDateByYear)) {
-                map[yearId] = []
-                for (const data of dataList) map[yearId].push({date: data.date, average: data.structure.e_sum / data.structure.w_sum})
+            const gradesBySubject = {}
+            const structuresAndDateByYear = {}
+
+            for (const grade of gradeStore.getGradesSortedByDate()) {
+                gradesBySubject[grade.subjectId] ??= []
+                gradesBySubject[grade.subjectId].push(grade)
+
+                const yearId = gradeStore.getYearIdForGrade(grade)
+                if (!yearId) continue
+
+                const finalStructure = {e_sum: 0, w_sum: 0, data: {}}
+                calStructure(finalStructure, yearId, 0, {
+                    gradesBySubject, yearStore, subjectStore, subSubjectStore
+                })
+
+                structuresAndDateByYear[yearId] ??= []
+                structuresAndDateByYear[yearId].push({
+                    date: grade.date,
+                    structure: finalStructure
+                })
+            }
+
+            const map = {}
+            for (const [yearId, dataList] of Object.entries(structuresAndDateByYear)) {
+                map[yearId] = dataList.map(d => ({
+                    date: d.date,
+                    average: d.structure.w_sum !== 0 ? d.structure.e_sum / d.structure.w_sum : 0
+                }))
             }
             return map
-        }, 
+        },
         gradeLRSlopesBySubject: (state) => {
             const gradeStore = useGradeStore()
             const result = {}
@@ -49,92 +121,11 @@ export const useAnalyticsStore = defineStore('analyticsStore', {
         }, 
     }, 
 
-    actions: {
-        init() {
-            this.gradeStore = useGradeStore()
-            this.subSubjectStore = useSubSubjectStore()
-            this.subjectStore = useSubjectStore()
-            this.yearStore = useYearStore()
-
-            this.gradesBySubject = this.gradeStore.gradesBySubject
-
-            this._calHistoricYearAverages()
-
-            // console.log(`YEAR AVERAGES: ${JSON.stringify(this.yearAverages, null, 2)}`)
-            
-        }, 
-        _calStructure(storage, top_id, depth) {
-            if (depth > 3) return 
-
-            // console.log(`TOP ID: ${top_id}`)
-
-            let elementList = []
-            
-            if (depth === 0) {
-                elementList = top_id ? [this.yearStore.yearsById[top_id]] : this.yearStore.years
-            } else if (depth === 1) {
-                elementList = this.subjectStore.subjectsByYear[top_id]
-            } else if (depth === 2) {
-                elementList = this.subSubjectStore.subSubjectsBySubject[top_id]
-            } else if (depth === 3) {
-                elementList = this.gradesBySubject[top_id]
-            }
-            
-            // console.log(`ELEMENT LIST: ${JSON.stringify(elementList)}`)
-            // Stop tree if top_id has no children
-            if (!elementList) return 
-            for (const element of elementList) {
-                // Create e_sum, w_sum and storage for sub element for every id
-                if (depth !== 3) storage.data[element.id] = {e_sum: 0, w_sum: 0, data: {}}
-
-                // Skip subSubject if there is none
-                const nextDepth = (depth === 1 && !element.hasSubSubjects) ? depth + 2 : depth + 1 
-                
-                // Recursivly go over the sub elements of every element
-                this._calStructure(storage.data[element.id], element.id, nextDepth)
-
-                // update e_- & w_sum of top element
-                if (depth === 3) {
-                    storage.e_sum += element.mark * element.weight
-                    storage.w_sum += element.weight
-                } else {
-                    if (storage.data[element.id].w_sum !== 0) {
-                        storage.e_sum += (storage.data[element.id].e_sum / storage.data[element.id].w_sum) * (element.weight ?? 1)
-                        storage.w_sum += element.weight ?? 1 
-                    }
-                }
-                
-            }
-        }, 
-        _calHistoricYearAverages() {
-            this.gradesBySubject = {}
-
-            // Iterate over grades sorted by date
-            for (const grade of this.gradeStore.getGradesSortedByDate()) {
-                // console.log(`SUBJECT ID: ${grade.subjectId}`)
-
-                // Push grade to according Subject
-                this.gradesBySubject[grade.subjectId] ??= []
-                this.gradesBySubject[grade.subjectId].push(grade)
-
-                // Reset finalStructure
-                let finalStructure = {e_sum: 0, w_sum: 0, data: {}}
-
-                // get YearId of grade
-                const yearId = this.gradeStore.getYearIdForGrade(grade)
-                
-                
-                // console.log(`GRADES BY SUBJECT ${JSON.stringify(this.gradesBySubject, null, 2)}`)
-                // Fill finalStructure
-                this._calStructure(finalStructure, yearId, 0)
-
-                // Update sturcturesByDate
-                this.structuresAndDateByYear[yearId] ??= []
-                this.structuresAndDateByYear[yearId].push({date: grade.date, structure: finalStructure})
-            }
-        }, 
+    actions: { 
         getSparkDataForSubject(subjectId) {
-            const grades = this.gradeStore.getGradesBySubjectStortedByDate()[subjectId]
+            const gradeStore = useGradeStore()
+            
+            const grades = gradeStore.getGradesBySubjectStortedByDate()[subjectId]
             const sums = {e: 0, w: 0}
             const sparkData = []
 
