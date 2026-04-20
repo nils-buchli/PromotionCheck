@@ -133,7 +133,7 @@ const touched = ref(false)
 
 const isNameInvalid   = computed(() => touched.value && !name.value.trim())
 const isMarkInvalid   = computed(() => touched.value && !mark.value)
-const isWeightInvalid = computed(() => touched.value && !weight.value)
+const isWeightInvalid = computed(() => touched.value &&  weight.value === '')
 const isDateInvalid   = computed(() => touched.value && !date.value)
 
 async function submit() {

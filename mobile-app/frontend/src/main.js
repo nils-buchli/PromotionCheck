@@ -1,10 +1,12 @@
-import './assets/style.css'
 import './assets/tailwind.css'
 
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import App from './App.vue'
 import router from './router'
+import { StatusBar, Style } from '@capacitor/status-bar'
+import { NavigationBar } from '@capgo/capacitor-navigation-bar'
+import { Capacitor } from '@capacitor/core'
 
 import db from './services/db'
 import { defineCustomElements } from 'jeep-sqlite/loader'
@@ -30,6 +32,16 @@ app.use(pinia)
 app.use(router)
 
 async function initApp() {
+    if (Capacitor.isNativePlatform()) {
+        await StatusBar.setStyle({ style: Style.Light })
+        await StatusBar.setBackgroundColor({ color: '#f4f4f5' })
+
+        await NavigationBar.setNavigationBarColor({ 
+            color: '#f4f4f5', 
+            darkButtons: true 
+        })
+    }
+    
     await db.init()
     
     const globalStateStore = useGlobalStatesStore()
@@ -70,8 +82,3 @@ setVh()
 window.addEventListener('resize', setVh)
 
 initApp()
-
-
-
-
-

@@ -115,7 +115,7 @@ const hasSubSubject = ref(false)
 const touched       = ref(false)
 
 const isNameInvalid   = computed(() => touched.value && !name.value.trim())
-const isWeightInvalid = computed(() => touched.value && !weight.value)
+const isWeightInvalid = computed(() => touched.value && weight.value === '')
 
 async function submit() {
     touched.value = true

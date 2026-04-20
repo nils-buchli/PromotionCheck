@@ -93,7 +93,7 @@ import { ref } from 'vue'
 
 defineEmits(['back'])
 
-const appName = 'Pluspoints'   
+const appName = 'PromotionCheck'   
 
 const expanded = ref(new Set())
 function toggle(name) {

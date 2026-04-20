@@ -179,7 +179,7 @@ const hasMark   = computed(() => route.name === 'grades')
 const hasDate   = computed(() => route.name === 'grades')
 
 const isTitleInvalid  = computed(() => touched.value.title  && !form.value.title.trim())
-const isWeightInvalid = computed(() => touched.value.weight && !form.value.weight)
+const isWeightInvalid = computed(() => touched.value.weight && form.value.weight === '')
 const isMarkInvalid   = computed(() => touched.value.mark   && !form.value.mark)
 const isDateInvalid   = computed(() => touched.value.date   && !form.value.date)
 

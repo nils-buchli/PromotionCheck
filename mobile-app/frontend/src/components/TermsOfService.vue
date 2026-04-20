@@ -378,7 +378,7 @@ import { ref } from 'vue'
 
 import PrivacyPolicy from './PrivacyPolicy.vue'
 
-const appName         = 'Pluspoints'
+const appName         = 'PromotionCheck'
 const operatorName    = 'Nils Niklas Buchli'
 const operatorAddress = 'Hunzigeweid 30, 3113 Rubigen'
 const contactEmail    = 'nils.buchli@mygymer.ch'

@@ -1,10 +1,17 @@
 {
-  "appId": "com.pluspoints.app",
-  "appName": "PlusPoints",
-  "webDir": "dist", 
+  "appId": "com.nilsbuchli.promotioncheck",
+  "appName": "PromotionCheck",
+  "webDir": "www", 
   "server": {
-    "url": "http://10.102.229.140:5000", 
+    "url": "https://456-optiplex.ddns.net", 
     "cleartext": true
+  }, 
+  "plugins": {
+    "StatusBar": {
+      "overlaysWebView": false,
+      "style": "DARK",
+      "backgroundColor": "#f4f4f5"
+    }
   }
 }
 

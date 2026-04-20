@@ -13,6 +13,8 @@
     "@capacitor/android": "^8.0.2",
     "@capacitor/cli": "^8.0.2",
     "@capacitor/core": "^8.0.2",
+    "@capacitor/status-bar": "^8.0.2",
+    "@capgo/capacitor-navigation-bar": "^8.0.25",
     "chart.js": "^4.5.1",
     "jeep-sqlite": "^2.8.0",
     "pinia": "^3.0.4",

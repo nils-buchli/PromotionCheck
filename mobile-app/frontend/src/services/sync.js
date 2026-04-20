@@ -58,7 +58,7 @@ export class SyncService {
                     )
                 } 
             }
-            await this.db.sqlite.saveToStore('pluspointdb')
+            await this.db.saveToStore('pluspointdb')
             await yearStore.loadYears()
         } else {
             this._errorCheck(data.msg)
@@ -101,7 +101,7 @@ export class SyncService {
             }
         }
 
-        await this.db.sqlite.saveToStore('pluspointdb')
+        await this.db.saveToStore('pluspointdb')
         
     }
 
@@ -134,7 +134,7 @@ export class SyncService {
                     ) 
                 }  
             }
-            await this.db.sqlite.saveToStore('pluspointdb')
+            await this.db.saveToStore('pluspointdb')
             await subjectStore.loadSubjects()
         } else {
             this._errorCheck(data.msg)
@@ -179,7 +179,7 @@ export class SyncService {
             }
         }
 
-        await this.db.sqlite.saveToStore('pluspointdb')
+        await this.db.saveToStore('pluspointdb')
     }
 
     async pullSubSubjects() {
@@ -212,7 +212,7 @@ export class SyncService {
                 }
                 
             }
-            await this.db.sqlite.saveToStore('pluspointdb')
+            await this.db.saveToStore('pluspointdb')
             await subSubjectStore.loadSubSubjects()
         } else {
             this._errorCheck(data.msg)
@@ -256,7 +256,7 @@ export class SyncService {
             }
         }
 
-        await this.db.sqlite.saveToStore('pluspointdb')
+        await this.db.saveToStore('pluspointdb')
     }
 
     async pullGrades() {
@@ -288,7 +288,7 @@ export class SyncService {
                     )
                 }
             }
-            await this.db.sqlite.saveToStore('pluspointdb')
+            await this.db.saveToStore('pluspointdb')
             await gradeStore.loadGrades()
         } else {
             this._errorCheck(data.msg)
@@ -334,7 +334,7 @@ export class SyncService {
             }
         }
 
-        await this.db.sqlite.saveToStore('pluspointdb')
+        await this.db.saveToStore('pluspointdb')
     }
 
     async sync() {

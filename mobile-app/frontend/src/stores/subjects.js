@@ -112,7 +112,7 @@ export const useSubjectStore = defineStore('subjectStore', {
                 const diff = Math.round((avg - 4) * 2) / 2
                 const subject = this.subjectsById?.[subjectId]  
                 
-                if (subject) {
+                if (subject && subject.weight > 0) {
                     map[subject.yearId] ??= 0
                     map[subject.yearId] += diff < 0 ? diff * settingsStore.minusPointFactor : diff
                 }

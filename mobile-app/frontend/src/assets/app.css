@@ -1,0 +1,4 @@
+:root {
+  --sat: env(safe-area-inset-top, 24px);
+  --sab: env(safe-area-inset-bottom, 16px);
+}

@@ -10,41 +10,17 @@
             </div>
 
             <!-- Access Pluspoints on the laptop -->
-            <div class="px-4 py-3">
-                <button
-                    type="button"
-                    @click="showPluspoints = !showPluspoints"
-                    class="w-full flex items-center justify-between active:opacity-60 transition-opacity"
-                    style="-webkit-tap-highlight-color: transparent;"
-                >
-                    <div>
-                        <p class="text-[15px] font-medium text-zinc-900 text-left">Access Pluspoints on the laptop</p>
-                        <p class="text-[12px] text-zinc-400 mt-0.5 text-left">Manage your grades from everywhere</p>
-                    </div>
-                    <svg
-                        class="w-4 h-4 text-zinc-400 flex-shrink-0 transition-transform duration-200"
-                        :class="showPluspoints ? 'rotate-90' : ''"
-                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                    >
-                        <path d="M9 18l6-6-6-6"/>
-                    </svg>
-                </button>
+            <HowToElement 
+                :title="'Access the app on your laptop'"
+                :sub-title="'Manage your grades from everywhere'"
+                :steps="accessOnLaptopSetps"
+            />
 
-                <!-- Expanded steps -->
-                <div
-                    class="overflow-hidden transition-all duration-200"
-                    :class="showPluspoints ? 'max-h-[9999px] mt-3' : 'max-h-0'"
-                >
-                    <div class="bg-zinc-50 rounded-xl border border-zinc-100 px-4 py-3 space-y-3">
-                        <div v-for="(step, i) in pluspointsSteps" :key="i" class="flex items-start gap-2.5">
-                            <div class="w-5 h-5 rounded-full bg-zinc-100 flex items-center justify-center flex-shrink-0 mt-0.5">
-                                <span class="text-[11px] font-medium text-zinc-900">{{ i + 1 }}</span>
-                            </div>
-                            <p class="text-[13px] text-zinc-700 leading-relaxed">{{ step }}</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <HowToElement 
+                :title="'Let an element not count'"
+                :sub-title="'Gray out elements, that do not affect your achievements'"
+                :steps="letSthNotCountSteps"
+            />
 
         </div>
     </div>
@@ -53,10 +29,15 @@
 <script setup>
 import { ref } from 'vue'
 
-const showPluspoints = ref(false)
+import HowToElement from './HowToElement.vue';
 
-const pluspointsSteps = [
-    'Open your browser and go to pluspoints.app',
+const accessOnLaptopSetps = [
+    'Open your browser and go to promotioncheck.ch',
     'Sign in with your username and password',
+]
+
+const letSthNotCountSteps = [
+    'Create or edit a subject, sub-subject or grade', 
+    'Simply set its weight to zero'
 ]
 </script>

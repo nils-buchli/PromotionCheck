@@ -92,6 +92,7 @@
 import { computed, ref } from 'vue'
 import { useUserStore } from '../stores/userStore'
 import ImportExport from './ImportExport.vue'
+import db from '../services/db'
 
 import { useYearStore } from '../stores/years'
 import { useSubjectStore } from '../stores/subjects'

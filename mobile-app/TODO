@@ -15,9 +15,13 @@
 [x] Liscenses
 [x] Change user data
 [x] import (check for valid structure, other file formats)
-[] export to file 
-[] icon
+[x] export to file 
+[x] icon
+[x] improve icon 
 [] apk 
-[] css in files
-[] Notifications to all Users 
+[x] css in files (RemovingPanel, ListElement, DreamgradeIsland, BottomBar)
+[x] Notifications to all Users 
 [] Extend how to? 
+[x] Solve 0 weight problem
+[x] no impact if weight 0 
+[x] Solve del user problem

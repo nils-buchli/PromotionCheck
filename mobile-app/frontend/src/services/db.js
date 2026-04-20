@@ -1,6 +1,7 @@
-import { CapacitorSQLite, SQLiteConnection } from '@capacitor-community/sqlite'
+import { Capacitor } from '@capacitor/core'  
 import { SyncService } from './sync'
 import { useUserStore } from '../stores/userStore'
+
 
 class DBService {
   constructor() {
@@ -26,11 +27,24 @@ class DBService {
   async init() {
     if (this.db) return
 
+    const { CapacitorSQLite, SQLiteConnection } = await import('@capacitor-community/sqlite')
+
     this.sqlite = new SQLiteConnection(CapacitorSQLite)
 
-    await this.sqlite.initWebStore() 
+    if (Capacitor.getPlatform() === 'web') {
+      await this.sqlite.initWebStore() 
+    }
 
-    this.db = await this.sqlite.createConnection('pluspointdb', false, 'no-encryption', 1, false)
+    const ret = (await this.sqlite.checkConnectionsConsistency()).result
+    const isConn = (await this.sqlite.isConnection('pluspointdb', false)).result
+
+    if (ret && isConn) {
+      this.db = await this.sqlite.retrieveConnection('pluspointdb', false)
+    } else {
+      this.db = await this.sqlite.createConnection(
+        'pluspointdb', false, 'no-encryption', 1, false
+      )
+    }
 
     await this.db.open()
 
@@ -41,8 +55,10 @@ class DBService {
 
   }
 
-  async _saveToStore() {
-    await this.sqlite.saveToStore('pluspointdb')
+  async saveToStore() {
+    if (Capacitor.getPlatform() === 'web') {
+      await this.sqlite.saveToStore('pluspointdb')
+    }
   }
 
   async createTables() {
@@ -63,7 +79,7 @@ class DBService {
 
   async addYear(id, title) {
     await this.db.run(`INSERT INTO years (id, title) VALUES (?, ?);`, [id, title])
-    await this._saveToStore()
+    await this.saveToStore()
     if (this.userStore.isLoggedIn) {
       await this.sync.pushYears()
     }
@@ -71,7 +87,7 @@ class DBService {
 
   async addSubject(id, title, weight, yearId, hasSubSubjects) {
     await this.db.run(`INSERT INTO subjects (id, year_id, title, weight, has_sub_subjects) VALUES (?, ?, ?, ?, ?);`, [id, yearId, title, weight, hasSubSubjects])
-    await this._saveToStore()
+    await this.saveToStore()
     if (this.userStore.isLoggedIn) {
       await this.sync.pushSubjects()
     }
@@ -79,7 +95,7 @@ class DBService {
 
   async addSubSubject(id, title, weight, subjectId) {
     await this.db.run(`INSERT INTO sub_subjects (id, subject_id, title, weight) VALUES (?, ?, ?, ?);`, [id, subjectId, title, weight])
-    await this._saveToStore()
+    await this.saveToStore()
     if (this.userStore.isLoggedIn) {
       await this.sync.pushSubSubjects()
     }
@@ -87,7 +103,7 @@ class DBService {
 
   async addGrade(id, title, mark, weight, date, subjectId) {
     await this.db.run(`INSERT INTO grades (id, subject_id, title, mark, weight, date) VALUES (?, ?, ?, ?, ?, ?);`, [id, subjectId, title, mark, weight, date])
-    await this._saveToStore()
+    await this.saveToStore()
     if (this.userStore.isLoggedIn) {
       await this.sync.pushGrades()
     }
@@ -105,7 +121,7 @@ class DBService {
     for (const id of ids) {
       await this.db.run(`DELETE FROM ${this.TABLES[route]} WHERE id=?`, [id])
     }
-    await this._saveToStore()
+    await this.saveToStore()
 
     // cloud
     if (this.userStore.isLoggedIn) {
@@ -149,7 +165,7 @@ class DBService {
         await this.db.run(`UPDATE ${this.TABLES[route]} SET title=?, weight=? WHERE id=?`, [data.title, data.weight, id])
     }
 
-    await this._saveToStore()
+    await this.saveToStore()
 
     if (this.userStore.isLoggedIn) {
       const token = localStorage.getItem('access_token')
@@ -198,7 +214,7 @@ class DBService {
   // Possible keys for settings table: round_to_ths, double_compensation, show_pluspoints, coloring, sorting
   async changeSetting(key, new_value) {
     await this.db.run(`UPDATE settings SET value=? WHERE key=?;`, [new_value, key])
-    await this._saveToStore()
+    await this.saveToStore()
   }
 
   async getSetting(key) {
@@ -211,7 +227,7 @@ class DBService {
     await this.db.run(`DELETE FROM subjects;`)
     await this.db.run(`DELETE FROM sub_subjects;`)
     await this.db.run(`DELETE FROM years;`)
-    this._saveToStore()
+    this.saveToStore()
   }
 }
 

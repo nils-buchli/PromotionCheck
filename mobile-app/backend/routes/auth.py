@@ -4,7 +4,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, get_jwt
 
 from extentions import db
-from models import User, Year, YearMap, Subject, SubSubject, Grade
+from models import User, Year, YearMap, Subject, SubSubject, Grade, UserSeenAnnouncement
 from utils import trigger_reload
 
 auth_bp = Blueprint("auth", __name__)
@@ -96,6 +96,9 @@ def delete_user():
 
        grades = Grade.query.filter(Grade.subject_id.in_(subject_ids + sub_subject_ids))
 
+       seen_announcements = UserSeenAnnouncement.query.filter_by(user_id=usr_id)
+
+       seen_announcements.delete()
        grades.delete()
        sub_subjects.delete()
        subjects.delete()

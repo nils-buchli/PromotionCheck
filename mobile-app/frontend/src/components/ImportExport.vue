@@ -20,7 +20,7 @@
                 >
                     <div>
                         <p class="text-[15px] font-medium text-zinc-900 text-left">Import</p>
-                        <p class="text-[12px] text-zinc-400 mt-0.5 text-left">Load a year from a pluspoint file</p>
+                        <p class="text-[12px] text-zinc-400 mt-0.5 text-left">Load a year from a file</p>
                     </div>
                     <svg v-if="importing" class="w-4 h-4 text-zinc-400 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
@@ -53,7 +53,7 @@
                     </div>
                 </Transition>
 
-                <input ref="fileInput" type="file" accept=".txt,.xml,.PlusPointExport,.plist" class="hidden" @change="onFileSelected" />
+                <input ref="fileInput" type="file" accept=".txt,.xml,.PlusPointsExport,.plist" class="hidden" @change="onFileSelected" />
             </div>
 
             <div class="mx-4 border-t border-zinc-100" />
@@ -68,7 +68,7 @@
                 >
                     <div>
                         <p class="text-[15px] font-medium text-zinc-900 text-left">Export</p>
-                        <p class="text-[12px] text-zinc-400 mt-0.5 text-left">Save a year as a pluspoint file</p>
+                        <p class="text-[12px] text-zinc-400 mt-0.5 text-left">Save a year as a file</p>
                     </div>
                     <svg
                         class="w-4 h-4 text-zinc-400 flex-shrink-0 transition-transform duration-200"

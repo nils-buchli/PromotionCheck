@@ -38,12 +38,14 @@ def create_app():
     from routes.subjects import subjects_bp
     from routes.sub_subjects import sub_subjects_bp
     from routes.grades import grades_bp
+    from routes.announcements import announcements_bp
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(years_bp)
     app.register_blueprint(subjects_bp)
     app.register_blueprint(sub_subjects_bp)
     app.register_blueprint(grades_bp)
+    app.register_blueprint(announcements_bp)
 
     from app_socket import events
 

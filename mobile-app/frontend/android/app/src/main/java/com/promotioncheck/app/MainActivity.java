@@ -1,4 +1,4 @@
-package com.pluspoints.app;
+package com.promotioncheck.app;
 
 import com.getcapacitor.BridgeActivity;
 

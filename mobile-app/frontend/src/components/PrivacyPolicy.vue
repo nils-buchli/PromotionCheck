@@ -77,7 +77,7 @@
                                     <li>
                                         Password: stored exclusively as a
                                         <strong>cryptographic hash</strong> (Werkzeug / PBKDF2-SHA256).
-                                        We never store or transmit your password in plain text.
+                                        We never store your password in plain text.
                                     </li>
                                 </ul>
                             </div>
@@ -329,12 +329,12 @@
 
 defineEmits(['back'])
 
-const appName           = 'Pluspoints'         
+const appName           = 'PromotionCheck'         
 const controllerName    = 'Nils Niklas Buchli'       
 const controllerAddress = 'Hunzigeweid 30, 3113 Rubigen'  
 const controllerCountry = 'Switzerland'
 const contactEmail      = 'nils.buchli@mygymer.ch' 
-const lastUpdated       = '8 April 2026'
+const lastUpdated       = '10 April 2026'
 
 
 const rights = [

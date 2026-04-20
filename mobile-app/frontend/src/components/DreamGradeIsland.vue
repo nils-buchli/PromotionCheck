@@ -147,9 +147,5 @@ function close() {
 </script>
 
 <style scoped>
-.fade-enter-active, .fade-leave-active { transition: opacity 0.2s ease; }
-.fade-enter-from,  .fade-leave-to      { opacity: 0; }
-
-.popup-enter-active, .popup-leave-active { transition: all 0.2s ease; }
-.popup-enter-from,   .popup-leave-to     { opacity: 0; transform: scale(0.95); }
+@import './../assets/DreamGradeIsland.css'
 </style>

@@ -82,29 +82,5 @@ function analytics() {
 </script>
 
 <style scoped>
-.nav-btn {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 4px;
-    width: 52px;
-    height: 52px;
-    border: none;
-    background: transparent;
-    cursor: pointer;
-    border-radius: 12px;
-    padding: 0;
-    transition: color 150ms ease;
-}
-.nav-btn:active { background: #e4e4e7; }
-
-.dot {
-    display: block;
-    width: 4px;
-    height: 4px;
-    border-radius: 9999px;
-    background: currentColor;
-    transition: opacity 150ms ease;
-}
+@import './../assets/BottomBar.css'
 </style>

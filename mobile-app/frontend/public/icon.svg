@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <defs>
+    <clipPath id="ic">
+      <rect width="1024" height="1024" rx="224"/>
+    </clipPath>
+  </defs>
+
+  <!-- Hintergrund -->
+  <rect width="1024" height="1024" rx="224" fill="#1A3C8F"/>
+  <rect width="1024" height="420" fill="#2150B5" clip-path="url(#ic)"/>
+  <rect y="800" width="1024" height="224" fill="#122870" clip-path="url(#ic)"/>
+
+  <!-- Balken -->
+  <rect x="260" y="520" width="140" height="280" rx="40" fill="#FFFFFF" opacity="0.92"/>
+  <rect x="442" y="400" width="140" height="400" rx="40" fill="#FFFFFF" opacity="0.92"/>
+  <rect x="624" y="260" width="140" height="540" rx="40" fill="#F0C040"/>
+
+  <!-- Stern (über kleinstem Balken, bewusst freistehend) -->
+  <polygon 
+    points="330,360 346,400 390,400 356,426 370,468 330,442 290,468 304,426 270,400 314,400" 
+    fill="#F0C040"
+  />
+
+  <!-- Glanz -->
+  <rect width="1024" height="70" fill="#FFFFFF" opacity="0.04" clip-path="url(#ic)"/>
+</svg>
