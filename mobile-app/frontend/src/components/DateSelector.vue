@@ -30,7 +30,7 @@
                 <div class="flex items-center justify-between px-4 py-3 border-b border-zinc-100">
                     <button
                         @click="prevMonth"
-                        class="w-8 h-8 flex items-center justify-center rounded-xl hover:bg-zinc-100 active:bg-zinc-200 transition-colors"
+                        class="w-11 h-11 flex items-center justify-center rounded-xl hover:bg-zinc-100 active:bg-zinc-200 transition-colors"
                     >
                         <svg class="w-4 h-4 text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
@@ -43,7 +43,7 @@
 
                     <button
                         @click="nextMonth"
-                        class="w-8 h-8 flex items-center justify-center rounded-xl hover:bg-zinc-100 active:bg-zinc-200 transition-colors"
+                        class="w-11 h-11 flex items-center justify-center rounded-xl hover:bg-zinc-100 active:bg-zinc-200 transition-colors"
                     >
                         <svg class="w-4 h-4 text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
@@ -69,7 +69,7 @@
                         :key="i"
                         @click="cell.day ? selectDay(cell.day) : null"
                         :class="[
-                            'flex items-center justify-center h-9 rounded-xl text-[14px] transition-colors duration-100',
+                            'flex items-center justify-center h-11 rounded-xl text-[14px] transition-colors duration-100',
                             !cell.day ? '' : 'cursor-pointer',
                             cell.isSelected
                                 ? 'bg-zinc-900 text-white font-semibold'

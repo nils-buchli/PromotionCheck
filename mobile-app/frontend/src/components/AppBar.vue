@@ -8,7 +8,7 @@
             <button
                 v-if="canGoBack"
                 @click="goBack()"
-                class="flex items-center justify-center w-7 h-7 -ml-1 flex-shrink-0 text-zinc-900 active:opacity-45 transition-opacity"
+                class="flex items-center justify-center w-11 h-11 -ml-3 flex-shrink-0 text-zinc-900 active:opacity-45 transition-opacity"
                 aria-label="Zurück"
             >
                 <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -21,12 +21,12 @@
         </div>
 
         <!-- Right: actions -->
-        <div v-if="showActions" class="flex items-center gap-[18px] flex-shrink-0">
+        <div v-if="showActions" class="flex items-center gap-0 flex-shrink-0 -mr-2">
 
             <!-- Delete toggle -->
             <button
                 @click="removeElements"
-                class="flex items-center justify-center w-6 h-6 transition-opacity active:opacity-45"
+                class="flex items-center justify-center w-11 h-11 transition-opacity active:opacity-45"
                 :class="globalStatesStore.removingElements ? 'text-red-500' : 'text-zinc-900'"
             >
                 <svg class="w-[17px] h-[17px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
@@ -42,7 +42,7 @@
             <button
                 v-if="route.name == 'grades'"
                 @click="handleDreamGrade"
-                class="flex items-center justify-center w-6 h-6 text-zinc-900 active:opacity-45 transition-opacity"
+                class="flex items-center justify-center w-11 h-11 text-zinc-900 active:opacity-45 transition-opacity"
             >
                 <svg class="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
                     <rect x="4" y="2" width="16" height="20" rx="2"/>
@@ -62,7 +62,7 @@
             <!-- Add -->
             <button
                 @click="addElement"
-                class="flex items-center justify-center w-6 h-6 text-zinc-900 active:opacity-45 transition-opacity"
+                class="flex items-center justify-center w-11 h-11 text-zinc-900 active:opacity-45 transition-opacity"
             >
                 <svg class="w-[19px] h-[19px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="12" y1="5" x2="12" y2="19"/>

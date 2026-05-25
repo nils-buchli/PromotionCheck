@@ -23,7 +23,7 @@
                             <!-- Username -->
                             <div class="mt-3">
                                 <p class="text-[11px] font-semibold text-zinc-400 uppercase tracking-widest mb-2 px-1">Username</p>
-                                <div :class="['bg-white rounded-2xl border overflow-hidden', hasUsernameError ? 'border-red-300' : 'border-zinc-200']">
+                                <div :class="['bg-white rounded-2xl border overflow-hidden transition-colors', hasUsernameError ? 'border-red-300' : 'border-zinc-200 focus-within:border-zinc-400']">
                                     <input
                                         v-model="form.username"
                                         placeholder="Username"
@@ -41,7 +41,7 @@
                             <!-- New Password -->
                             <div class="mt-1">
                                 <p class="text-[11px] font-semibold text-zinc-400 uppercase tracking-widest mb-2 px-1">New Password</p>
-                                <div :class="['bg-white rounded-2xl border overflow-hidden flex items-center pr-4', isPasswordInvalid ? 'border-red-300' : 'border-zinc-200']">
+                                <div :class="['bg-white rounded-2xl border overflow-hidden flex items-center pr-4 transition-colors', isPasswordInvalid ? 'border-red-300' : 'border-zinc-200 focus-within:border-zinc-400']">
                                     <input
                                         v-model="form.password"
                                         placeholder="New password"
@@ -67,7 +67,7 @@
                             <!-- Confirm Password -->
                             <div class="mt-1">
                                 <p class="text-[11px] font-semibold text-zinc-400 uppercase tracking-widest mb-2 px-1">Confirm Password</p>
-                                <div :class="['bg-white rounded-2xl border overflow-hidden flex items-center pr-4', isConfirmInvalid ? 'border-red-300' : 'border-zinc-200']">
+                                <div :class="['bg-white rounded-2xl border overflow-hidden flex items-center pr-4 transition-colors', isConfirmInvalid ? 'border-red-300' : 'border-zinc-200 focus-within:border-zinc-400']">
                                     <input
                                         v-model="form.confirmPassword"
                                         placeholder="Repeat new password"

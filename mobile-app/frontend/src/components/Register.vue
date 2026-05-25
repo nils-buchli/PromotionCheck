@@ -86,41 +86,51 @@
         </div>
 
         <!-- Privacy Policy & Terms of Service Checkbox -->
-        <div class="mx-5 mt-4 flex items-start gap-3">
-            <button
-                type="button"
-                @click="agreedToPolicy = !agreedToPolicy"
-                :class="[
-                    'mt-0.5 w-5 h-5 rounded-md border flex-shrink-0 flex items-center justify-center transition-colors duration-150',
-                    agreedToPolicy
-                        ? 'bg-zinc-800 border-zinc-800'
-                        : 'bg-white border-zinc-300'
-                ]"
-                style="-webkit-tap-highlight-color: transparent;"
+        <div class="mx-5 mt-4">
+            <div class="flex items-start gap-3">
+                <button
+                    type="button"
+                    @click="agreedToPolicy = !agreedToPolicy; policyError = false"
+                    :class="[
+                        'mt-0.5 w-5 h-5 rounded-md border flex-shrink-0 flex items-center justify-center transition-colors duration-150',
+                        agreedToPolicy
+                            ? 'bg-zinc-800 border-zinc-800'
+                            : policyError
+                                ? 'bg-white border-red-400'
+                                : 'bg-white border-zinc-300'
+                    ]"
+                    style="-webkit-tap-highlight-color: transparent;"
+                >
+                    <svg v-if="agreedToPolicy" class="w-3 h-3 text-white" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M2 6l3 3 5-5"/>
+                    </svg>
+                </button>
+                <p class="text-[13px] text-zinc-400 leading-snug">
+                    I have read and agree to the
+                    <button
+                        type="button"
+                        @click="$emit('show-privacy')"
+                        class="text-zinc-700 font-medium underline underline-offset-2"
+                        style="-webkit-tap-highlight-color: transparent;"
+                    >
+                        Privacy Policy
+                    </button>
+                    and
+                    <button
+                        type="button"
+                        @click="$emit('show-terms')"
+                        class="text-zinc-700 font-medium underline underline-offset-2"
+                        style="-webkit-tap-highlight-color: transparent;"
+                    >
+                        Terms of Service
+                    </button>
+                </p>
+            </div>
+            <p
+                class="text-[11px] text-red-400 mt-1.5 px-1 transition-opacity duration-150"
+                :class="policyError ? 'opacity-100' : 'opacity-0'"
             >
-                <svg v-if="agreedToPolicy" class="w-3 h-3 text-white" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M2 6l3 3 5-5"/>
-                </svg>
-            </button>
-            <p class="text-[13px] text-zinc-400 leading-snug">
-                I have read and agree to the
-                <button
-                    type="button"
-                    @click="$emit('show-privacy')"
-                    class="text-zinc-700 font-medium underline underline-offset-2"
-                    style="-webkit-tap-highlight-color: transparent;"
-                >
-                    Privacy Policy
-                </button>
-                and
-                <button
-                    type="button"
-                    @click="$emit('show-terms')"
-                    class="text-zinc-700 font-medium underline underline-offset-2"
-                    style="-webkit-tap-highlight-color: transparent;"
-                >
-                    Terms of Service
-                </button>
+                Please accept the Privacy Policy and Terms of Service.
             </p>
         </div>
 
@@ -166,6 +176,7 @@ const password     = ref('')
 const showPassword = ref(false)
 const serverError  = ref('')
 const agreedToPolicy = ref(false)
+const policyError    = ref(false)
 
 const touchedFields = ref({ username: false, password: false })
 
@@ -190,7 +201,10 @@ async function submit() {
     serverError.value = ''
 
     if (isUsernameInvalid.value || isPasswordInvalid.value) return
-    if (!agreedToPolicy.value) return 
+    if (!agreedToPolicy.value) {
+        policyError.value = true
+        return
+    }
 
     const response = await fetch(`${API_BASE}/api/register`, {
         method: 'POST',
