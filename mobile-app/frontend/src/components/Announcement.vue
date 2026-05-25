@@ -3,7 +3,7 @@
         <Transition enter-active-class="transition duration-200 ease-out"
                     enter-from-class="opacity-0 translate-y-2"
                     enter-to-class="opacity-100 translate-y-0">
-            <div v-if="current" class="fixed inset-x-0 bottom-6 flex justify-center z-50 px-5">
+            <div v-if="current" class="fixed inset-x-0 bottom-24 flex justify-center z-50 px-5">
                 <div class="bg-white border border-zinc-200 rounded-2xl shadow-xl p-4 w-full max-w-sm">
 
                     <!-- Type badge -->

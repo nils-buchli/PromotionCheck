@@ -29,9 +29,10 @@ def create_app():
 
     db.init_app(app)
     jwt.init_app(app)
-    socketio.init_app(app, path="/socket.io", cors_allowed_origins="*")
+    allowed_origins = ["https://456-optiplex.ddns.net", "capacitor://localhost"]
+    socketio.init_app(app, path="/socket.io", cors_allowed_origins=allowed_origins)
 
-    CORS(app, supports_credentials=True)
+    CORS(app, origins=allowed_origins, supports_credentials=True)
 
     from routes.auth import auth_bp
     from routes.years import years_bp
@@ -62,4 +63,4 @@ def create_app():
 app = create_app()
 
 if __name__ == "__main__":
-    socketio.run(app, debug=True, host="0.0.0.0", port=5000)
+    socketio.run(app, debug=False, host="0.0.0.0", port=5000)

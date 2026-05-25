@@ -1,5 +1,5 @@
 from flask import request
-from flask_socketio import SocketIO, emit, join_room, rooms, disconnect
+from flask_socketio import join_room
 
 from models import User
 from extentions import socketio, redis_client
@@ -16,7 +16,11 @@ def handle_connect(auth):
         print(f"SOCKET: Missing token.")
         return False 
     
-    decoded = decode_token(token)
+    try:
+        decoded = decode_token(token)
+    except Exception:
+        print("SOCKET: Invalid or expired token.")
+        return False
     usr_id = decoded["sub"]
     device_id = decoded.get("device_id")
 

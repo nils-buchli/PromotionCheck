@@ -3,7 +3,7 @@
 
     <!-- Loading screen -->
     <Transition name="loading">
-      <div v-if="showLoader" class="fixed inset-0 z-[200] flex items-center justify-center bg-white">
+      <div v-if="!globalStatesStore.initComplete" class="fixed inset-0 z-[200] flex items-center justify-center bg-white">
         <div class="flex flex-col items-center gap-4">
           <div class="w-[72px] h-[72px] rounded-[18px] overflow-hidden shadow-md">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" class="w-full h-full">
@@ -37,7 +37,7 @@
       <AppBar />
 
       <main class="flex-1 min-h-0 flex overflow-hidden">
-        <router-view v-slot="{ Component }">
+        <router-view v-if="globalStatesStore.initComplete" v-slot="{ Component }">
           <component :is="Component" class="flex-1 min-h-0" />
         </router-view>
       </main>
@@ -55,7 +55,7 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { watch } from 'vue'
 import { Capacitor } from '@capacitor/core'
 
 import AppBar from './components/AppBar.vue'
@@ -69,16 +69,6 @@ const isWeb = Capacitor.getPlatform() === 'web'
 
 const statusBarHeight = 'calc(env(safe-area-inset-top, 44px) - 15px)'
 const navBarHeight = 'calc(env(safe-area-inset-bottom, 44px) - 15px)'
-
-const showLoader = ref(false)
-const loaderTimer = setTimeout(() => {
-  if (!globalStatesStore.initComplete) showLoader.value = true
-}, 750)
-
-watch(() => globalStatesStore.initComplete, () => {
-  clearTimeout(loaderTimer)
-  showLoader.value = false
-})
 
 watch(() => globalStatesStore.removingElements, (v) => {
   globalStatesStore.clearRemove()

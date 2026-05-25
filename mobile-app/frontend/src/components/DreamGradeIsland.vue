@@ -23,7 +23,7 @@
               <!-- Wunschdurchschnitt -->
               <div class="mt-3">
                 <p class="text-[11px] font-semibold text-zinc-400 uppercase tracking-widest mb-2 px-1">Dream-average</p>
-                <div class="bg-white rounded-2xl border border-zinc-200 overflow-hidden">
+                <div class="bg-white rounded-2xl border border-zinc-200 overflow-hidden focus-within:border-zinc-400 transition-colors">
                   <input
                     v-model.number="form.dreamAvg"
                     type="number"
@@ -49,7 +49,7 @@
               <!-- Gewichtung -->
               <div class="mt-1">
                 <p class="text-[11px] font-semibold text-zinc-400 uppercase tracking-widest mb-2 px-1">Weight</p>
-                <div class="bg-white rounded-2xl border border-zinc-200 overflow-hidden">
+                <div class="bg-white rounded-2xl border border-zinc-200 overflow-hidden focus-within:border-zinc-400 transition-colors">
                   <input
                     v-model.number="form.weight"
                     placeholder="Weight"

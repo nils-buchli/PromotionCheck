@@ -41,23 +41,20 @@ def login():
     if usr_name and usr_password: 
         user = User.query.filter_by(name=usr_name).first()
 
-        if user: 
-            if check_password_hash(user.password, usr_password):  
-                print(f"WEB_APP: User {user} logged in.")
-                
-                device_id = uuid.uuid4()
-                return {
-                    "success": True, 
-                    "access_token": create_access_token(
-                        identity=user.id, 
-                        additional_claims={"device_id": device_id}
-                    ), 
-                    "device_id": device_id
-                } 
-            else: 
-                return {"success": False, "msg": "noPasswordMatch"}
-        else: 
-            return {"success": False, "msg": "userNotFound"}
+        if user and check_password_hash(user.password, usr_password):
+            print(f"WEB_APP: User {user} logged in.")
+
+            device_id = uuid.uuid4()
+            return {
+                "success": True,
+                "access_token": create_access_token(
+                    identity=user.id,
+                    additional_claims={"device_id": device_id}
+                ),
+                "device_id": device_id
+            }
+        else:
+            return {"success": False, "msg": "invalidCredentials"}
     else: 
         print("WARNING: Invalid login data.")
         return {"success": False, "msg": "invalidInput"}

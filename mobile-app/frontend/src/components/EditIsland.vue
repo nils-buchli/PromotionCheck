@@ -23,7 +23,7 @@
                             <!-- Name -->
                             <div class="mt-3">
                                 <p class="text-[11px] font-semibold text-zinc-400 uppercase tracking-widest mb-2 px-1">Name</p>
-                                <div class="bg-white rounded-2xl border border-zinc-200 overflow-hidden">
+                                <div class="bg-white rounded-2xl border border-zinc-200 overflow-hidden focus-within:border-zinc-400 transition-colors">
                                     <input
                                         v-model="form.title"
                                         placeholder="Name"
@@ -46,7 +46,7 @@
                             <!-- Gewichtung -->
                             <div v-if="hasWeight" class="mt-1">
                                 <p class="text-[11px] font-semibold text-zinc-400 uppercase tracking-widest mb-2 px-1">Weight</p>
-                                <div class="bg-white rounded-2xl border border-zinc-200 overflow-hidden">
+                                <div class="bg-white rounded-2xl border border-zinc-200 overflow-hidden focus-within:border-zinc-400 transition-colors">
                                     <input
                                         v-model.number="form.weight"
                                         placeholder="Weight"
@@ -71,7 +71,7 @@
                             <!-- Note -->
                             <div v-if="hasMark" class="mt-1">
                                 <p class="text-[11px] font-semibold text-zinc-400 uppercase tracking-widest mb-2 px-1">Mark</p>
-                                <div class="bg-white rounded-2xl border border-zinc-200 overflow-hidden">
+                                <div class="bg-white rounded-2xl border border-zinc-200 overflow-hidden focus-within:border-zinc-400 transition-colors">
                                     <input
                                         v-model.number="form.mark"
                                         placeholder="Mark"
@@ -183,8 +183,8 @@ const isWeightInvalid = computed(() => touched.value.weight && form.value.weight
 const isMarkInvalid   = computed(() => touched.value.mark   && !form.value.mark)
 const isDateInvalid   = computed(() => touched.value.date   && !form.value.date)
 
-const typeLabels = { years: 'Year', subjects: 'Subject', subsubjects: 'Sub-Subject', grades: 'Grade' }
-const title = computed(() => `${typeLabels[route.name] ?? 'Eintrag'} bearbeiten`)
+const typeLabels = { years: 'Year', subjects: 'Subject', subSubjects: 'Sub-Subject', grades: 'Grade' }
+const title = computed(() => `Edit ${typeLabels[route.name] ?? 'Entry'}`)
 
 function close() {
     emit('close')

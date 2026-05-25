@@ -7,31 +7,32 @@
             <div class="relative">
                 <button
                     @click="dropdownOpen = !dropdownOpen"
-                    class="w-full px-4 py-2 rounded-xl bg-zinc-100 border border-zinc-300 text-left text-sm text-zinc-900 font-medium hover:bg-zinc-200 transition flex items-center justify-between"
+                    class="w-full px-4 py-3.5 rounded-2xl bg-white border border-zinc-200 text-left text-[15px] text-zinc-900 font-medium active:bg-zinc-50 transition-colors flex items-center justify-between"
+                    style="-webkit-tap-highlight-color: transparent;"
                 >
                     <span>{{ selectedYear }}</span>
-                    <svg 
-                        :class="['w-4 h-4 transition flex-shrink-0', dropdownOpen ? 'rotate-180' : '']"
-                        fill="none" 
-                        stroke="currentColor" 
-                        viewBox="0 0 24 24"
+                    <svg
+                        :class="['w-4 h-4 transition-transform duration-200 flex-shrink-0 text-zinc-400', dropdownOpen ? 'rotate-180' : '']"
+                        fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                     >
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                        <polyline points="6 9 12 15 18 9"/>
                     </svg>
                 </button>
 
-                <div 
+                <div
                     v-if="dropdownOpen"
-                    class="absolute top-full left-0 right-0 mt-1 bg-white border border-zinc-300 rounded-xl shadow-lg z-50 overflow-hidden"
+                    class="absolute top-full left-0 right-0 mt-1 bg-white border border-zinc-200 rounded-2xl shadow-lg z-50 overflow-hidden"
                 >
-                    <div 
-                        v-for="year in yearStore.years" 
+                    <div
+                        v-for="year in yearStore.years"
                         :key="year.id"
                         @click="selectYear(year.id)"
                         :class="[
-                            'px-4 py-2 text-sm text-zinc-900 cursor-pointer transition',
-                            selectedYearId === year.id ? 'bg-zinc-100 font-medium' : 'hover:bg-zinc-50'
+                            'px-4 py-3 text-[15px] text-zinc-900 cursor-pointer transition-colors',
+                            selectedYearId === year.id ? 'bg-zinc-50 font-semibold' : 'active:bg-zinc-50'
                         ]"
+                        style="-webkit-tap-highlight-color: transparent;"
                     >
                         {{ year.name }}
                     </div>

@@ -25,7 +25,7 @@
         <!-- Username -->
         <div class="mt-6 mx-5">
             <p class="text-[11px] font-semibold text-zinc-400 uppercase tracking-widest mb-2 px-1">Username</p>
-            <div class="bg-white rounded-2xl border border-zinc-200 overflow-hidden">
+            <div class="bg-white rounded-2xl border border-zinc-200 overflow-hidden focus-within:border-zinc-400 transition-colors">
                 <input
                     v-model="username"
                     type="text"
@@ -49,8 +49,8 @@
 
         <!-- Password -->
         <div class="mt-2 mx-5">
-            <p class="text-[11px] font-semibold text-zinc-400 uppercase tracking-widest mb-2 px-1">Passwort</p>
-            <div class="bg-white rounded-2xl border border-zinc-200 overflow-hidden flex items-center pr-4">
+            <p class="text-[11px] font-semibold text-zinc-400 uppercase tracking-widest mb-2 px-1">Password</p>
+            <div class="bg-white rounded-2xl border border-zinc-200 overflow-hidden focus-within:border-zinc-400 transition-colors flex items-center pr-4">
                 <input
                     v-model="password"
                     :type="showPassword ? 'text' : 'password'"
@@ -90,7 +90,7 @@
             <button
                 type="button"
                 @click="submit"
-                class="w-full bg-zinc-100 active:bg-zinc-200 text-zinc-700 text-[15px] font-medium rounded-2xl py-3.5 transition-colors duration-150 border border-zinc-200"
+                class="w-full bg-zinc-900 active:bg-zinc-700 text-white text-[15px] font-medium rounded-2xl py-3.5 transition-colors duration-150"
                 style="-webkit-tap-highlight-color: transparent;"
             >
                 Login
@@ -159,11 +159,8 @@ async function submit() {
         window.location.reload()
     } else {
         switch (loginData.msg) {
-            case 'noPasswordMatch':
-                serverError.value = 'Wrong password.'
-                break
-            case 'userNotFound':
-                serverError.value = 'Username doesn\'t exist.'
+            case 'invalidCredentials':
+                serverError.value = 'Invalid username or password.'
                 break
             case 'inputInvalid':
                 serverError.value = 'Invalid input.'

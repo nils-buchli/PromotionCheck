@@ -4,7 +4,7 @@
         <!-- Name -->
         <div class="mt-6 mx-5">
             <p class="text-[11px] font-semibold text-zinc-400 uppercase tracking-widest mb-2 px-1">Name</p>
-            <div class="bg-white rounded-2xl border border-zinc-200 overflow-hidden">
+            <div class="bg-white rounded-2xl border border-zinc-200 overflow-hidden focus-within:border-zinc-400 transition-colors">
                 <input
                     v-model="name"
                     type="text"
@@ -29,7 +29,7 @@
         <!-- Weight -->
         <div class="mt-2 mx-5">
             <p class="text-[11px] font-semibold text-zinc-400 uppercase tracking-widest mb-2 px-1">Weight</p>
-            <div class="bg-white rounded-2xl border border-zinc-200 overflow-hidden">
+            <div class="bg-white rounded-2xl border border-zinc-200 overflow-hidden focus-within:border-zinc-400 transition-colors">
                 <input
                     v-model="weight"
                     type="number"
@@ -84,7 +84,7 @@
             <button
                 type="button"
                 @click="submit"
-                class="w-full bg-zinc-100 active:bg-zinc-200 text-zinc-700 text-[15px] font-medium rounded-2xl py-3.5 transition-colors duration-150 border border-zinc-200"
+                class="w-full bg-zinc-900 active:bg-zinc-700 text-white text-[15px] font-medium rounded-2xl py-3.5 transition-colors duration-150"
                 style="-webkit-tap-highlight-color: transparent;"
             >
                 {{ isSubSubject ? 'Add sub-subject' : 'Add subject' }}

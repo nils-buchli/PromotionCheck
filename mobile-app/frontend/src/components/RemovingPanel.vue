@@ -1,7 +1,7 @@
 <template>
     <Transition name="fade">
         <div v-if="isActive" class="fixed bottom-24 left-1/2 -translate-x-1/2 z-50">
-            <div class="bg-zinc-50 border border-zinc-200 shadow-md rounded-3xl px-5 py-4 w-64">
+            <div class="bg-white border border-zinc-200 shadow-lg rounded-3xl px-5 py-4 w-64">
 
                 <!-- Label -->
                 <p class="text-[11px] font-semibold text-zinc-400 uppercase tracking-widest mb-1 px-1">
@@ -24,7 +24,7 @@
                     </button>
                     <button
                         @click="remove"
-                        class="flex-1 rounded-2xl border border-zinc-200 bg-zinc-100 active:bg-zinc-200 text-red-500 text-[14px] font-medium py-2.5 transition-colors duration-150"
+                        class="flex-1 rounded-2xl border border-red-200 bg-red-50 active:bg-red-100 text-red-600 text-[14px] font-medium py-2.5 transition-colors duration-150"
                         style="-webkit-tap-highlight-color: transparent;"
                     >
                         Delete

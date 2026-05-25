@@ -43,7 +43,7 @@
 
                         <span
                             v-if="hasWeight"
-                            class="inline-flex items-center text-[10px] font-semibold text-zinc-500 bg-zinc-100 rounded px-1.5 py-px tracking-wide"
+                            class="inline-flex items-center text-[11px] font-semibold text-zinc-600 bg-zinc-100 rounded px-1.5 py-px tracking-wide"
                         >
                             {{ props.element.weight }}×
                         </span>

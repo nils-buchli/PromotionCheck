@@ -47,13 +47,13 @@ def sub_subjects():
         if not sub_subject_ids: 
             return {"success": False, "msg": "invalidInput"}
 
-        invalid_sub_subjects = SubSubject.query.filter(SubSubject.id.in_(sub_subject_ids)).join(Subject, Subject.id == SubSubject.id).join(Year, Year.id == Subject.year_id).join(YearMap, Year.id == YearMap.year_id).filter(YearMap.user_id != usr_id).all()
+        invalid_sub_subjects = SubSubject.query.filter(SubSubject.id.in_(sub_subject_ids)).join(Subject, Subject.id == SubSubject.subject_id).join(Year, Year.id == Subject.year_id).join(YearMap, Year.id == YearMap.year_id).filter(YearMap.user_id != usr_id).all()
 
         if invalid_sub_subjects: 
             return {"success": False, "msg": "permissionDenied"}
         
-        if request.method == "PUT": 
-            if len(sub_subject_ids) != 1 or not sub_subject_data.get("data"): 
+        if request.method == "PUT":
+            if len(sub_subject_ids) != 1 or not sub_subjects_data.get("data"):
                 return {"success": False, "msg": "invalidInput"}
 
             u_data = sub_subjects_data.get("data")

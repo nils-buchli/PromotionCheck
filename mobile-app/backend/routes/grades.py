@@ -28,7 +28,8 @@ def grades():
             return {"success": False, "msg": "invalidInput"}
         ym1 = YearMap.query.join(Year, Year.id == YearMap.year_id).join(Subject, Subject.year_id == Year.id).filter(Subject.id == grades_data.get("subject_id")).first()
         ym2 = YearMap.query.join(Year, Year.id == YearMap.year_id).join(Subject, Subject.year_id == Year.id).join(SubSubject, SubSubject.subject_id == Subject.id).filter(SubSubject.id == grades_data.get("subject_id")).first()
-        if (ym1 and usr_id != ym1.user_id) and (ym2 and usr_id != ym2.user_id): 
+        is_owner = (ym1 and ym1.user_id == usr_id) or (ym2 and ym2.user_id == usr_id)
+        if not is_owner:
             return {"success": False, "msg": "permissionDenied"}
         if Grade.query.filter_by(id=grades_data.get("id")).first(): 
             return {"success": False, "msg": "itemAlreadyExists"}
