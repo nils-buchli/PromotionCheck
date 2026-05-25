@@ -1,6 +1,7 @@
-import { Capacitor } from '@capacitor/core'  
+import { Capacitor } from '@capacitor/core'
 import { SyncService } from './sync'
 import { useUserStore } from '../stores/userStore'
+import { API_BASE } from '../config'
 
 
 class DBService {
@@ -126,7 +127,7 @@ class DBService {
     // cloud
     if (this.userStore.isLoggedIn) {
       const token = localStorage.getItem('access_token')
-      const response = await fetch(`/api/${this.TABLES[route].replace('_', '-')}`, {
+      const response = await fetch(`${API_BASE}/api/${this.TABLES[route].replace('_', '-')}`, {
         method: 'DELETE', 
         headers: {
           'Content-Type': 'application/json', 
@@ -169,7 +170,7 @@ class DBService {
 
     if (this.userStore.isLoggedIn) {
       const token = localStorage.getItem('access_token')
-      const response = await fetch(`/api/${this.TABLES[route].replace('_', '-')}`, {
+      const response = await fetch(`${API_BASE}/api/${this.TABLES[route].replace('_', '-')}`, {
         method: 'PUT', 
         headers: {
           'Content-Type': 'application/json', 

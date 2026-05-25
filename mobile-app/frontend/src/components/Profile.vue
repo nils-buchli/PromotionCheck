@@ -93,6 +93,7 @@ import { computed, ref } from 'vue'
 import { useUserStore } from '../stores/userStore'
 import ImportExport from './ImportExport.vue'
 import db from '../services/db'
+import { API_BASE } from '../config'
 
 import { useYearStore } from '../stores/years'
 import { useSubjectStore } from '../stores/subjects'
@@ -138,8 +139,8 @@ async function logout() {
 }
 
 async function deleteAccount() {
-    const response = await fetch('/api/delete-user', {
-        method: 'DELETE', 
+    const response = await fetch(`${API_BASE}/api/delete-user`, {
+        method: 'DELETE',
         headers: {
             'Authorization': `Bearer ${localStorage.getItem('access_token')}`
         }

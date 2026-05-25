@@ -1,11 +1,7 @@
 {
   "appId": "com.nilsbuchli.promotioncheck",
   "appName": "PromotionCheck",
-  "webDir": "www", 
-  "server": {
-    "url": "https://456-optiplex.ddns.net", 
-    "cleartext": true
-  }, 
+  "webDir": "dist",
   "plugins": {
     "StatusBar": {
       "overlaysWebView": false,

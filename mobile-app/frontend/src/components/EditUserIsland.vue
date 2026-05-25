@@ -119,6 +119,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useUserStore } from '../stores/userStore'
+import { API_BASE } from '../config'
 
 const userStore = useUserStore()
 
@@ -160,7 +161,7 @@ async function save() {
     }
 
     const token = localStorage.getItem('access_token')
-    const response = await fetch('/api/edit-user', {
+    const response = await fetch(`${API_BASE}/api/edit-user`, {
         method:  'PUT',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body:    JSON.stringify(payload),

@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { User } from '../models/User'
+import { API_BASE } from '../config'
 
 export const useUserStore = defineStore('userStore', {
     state: () => ({ 
@@ -16,7 +17,7 @@ export const useUserStore = defineStore('userStore', {
             const token = localStorage.getItem('access_token')
 
             if (token) {
-                const response = await fetch('/api/me', {
+                const response = await fetch(`${API_BASE}/api/me`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }

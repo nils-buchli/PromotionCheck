@@ -32,6 +32,7 @@
 import { ref, computed } from 'vue'
 
 import { useUserStore } from '../stores/userStore'
+import { API_BASE } from '../config'
 
 const userStore = useUserStore()
 
@@ -42,7 +43,7 @@ const current = computed(() => announcements.value[currentIndex.value] ?? null)
 
 async function fetchAnnouncements() {
     if (userStore.isLoggedIn) {
-        const res  = await fetch('/api/announcements', {
+        const res  = await fetch(`${API_BASE}/api/announcements`, {
            headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
         })
         const json = await res.json()
@@ -52,7 +53,7 @@ async function fetchAnnouncements() {
 
 async function dismiss() {
     if (userStore.isLoggedIn) {
-        await fetch('/api/announcements', {
+        await fetch(`${API_BASE}/api/announcements`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

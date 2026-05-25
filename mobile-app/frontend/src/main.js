@@ -36,17 +36,19 @@ async function initApp() {
         await StatusBar.setStyle({ style: Style.Light })
         await StatusBar.setBackgroundColor({ color: '#f4f4f5' })
 
-        await NavigationBar.setNavigationBarColor({ 
-            color: '#f4f4f5', 
-            darkButtons: true 
+        await NavigationBar.setNavigationBarColor({
+            color: '#f4f4f5',
+            darkButtons: true
         })
     }
-    
+
+    // Mount immediately so the loading screen is visible during init
+    app.mount('#app')
+
     await db.init()
-    
+
     const globalStateStore = useGlobalStatesStore()
     const userStore        = useUserStore()
-    const analysticsStore  = useAnalyticsStore()
     const settingsStore    = useSettingsStore()
     const yearStore        = useYearStore()
     const subjectStore     = useSubjectStore()
@@ -55,24 +57,22 @@ async function initApp() {
 
     await userStore.updateUser()
 
-    const sync   = new SyncService(db)
-    const socket = new SocketService()
-
     await yearStore.loadYears()
     await subjectStore.loadSubjects()
     await subSubjectStore.loadSubSubjects()
     await gradeStore.loadGrades()
-
-    if (userStore.isLoggedIn) {
-        await sync.sync()
-        await socket.init()
-    }
-
     await settingsStore.init()
 
+    // App is ready — hide loading screen
     globalStateStore.initComplete = true
-    app.mount('#app')
 
+    // Sync and socket run in the background after the app is already visible
+    if (userStore.isLoggedIn) {
+        const sync   = new SyncService(db)
+        const socket = new SocketService()
+        sync.sync()
+        socket.init()
+    }
 }
 
 const setVh = () => {

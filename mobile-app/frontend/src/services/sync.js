@@ -3,6 +3,7 @@ import { useYearStore } from '../stores/years'
 import { useSubjectStore } from '../stores/subjects'
 import { useSubSubjectStore } from '../stores/subsubjects'
 import { useGradeStore } from '../stores/grades'
+import { API_BASE } from '../config'
 
 export class SyncService {
     constructor(dbService) {
@@ -33,7 +34,7 @@ export class SyncService {
         const token = localStorage.getItem('access_token')
         const yearStore = useYearStore()
 
-        const response = await fetch('/api/years', {
+        const response = await fetch(`${API_BASE}/api/years`, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
@@ -71,7 +72,7 @@ export class SyncService {
 
         for (const year of years){
             if (year.synced === 0) {
-                const response = await fetch('/api/years', {
+                const response = await fetch(`${API_BASE}/api/years`, {
                     method: 'POST', 
                     headers: {
                         'Content-Type': 'application/json',
@@ -109,7 +110,7 @@ export class SyncService {
         const token = localStorage.getItem('access_token')
         const subjectStore = useSubjectStore()
 
-        const response = await fetch('/api/subjects', {
+        const response = await fetch(`${API_BASE}/api/subjects`, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
@@ -147,7 +148,7 @@ export class SyncService {
 
         for (const subject of subjects){
             if (subject.synced === 0) {
-                const response = await fetch('/api/subjects', {
+                const response = await fetch(`${API_BASE}/api/subjects`, {
                     method: 'POST', 
                     headers: {
                         'Content-Type': 'application/json',
@@ -186,7 +187,7 @@ export class SyncService {
         const token = localStorage.getItem('access_token')
         const subSubjectStore = useSubSubjectStore()
 
-        const response = await fetch('/api/sub-subjects', {
+        const response = await fetch(`${API_BASE}/api/sub-subjects`, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
@@ -225,7 +226,7 @@ export class SyncService {
 
         for (const subSubject of subSubjects){
             if (subSubject.synced === 0) {
-                const response = await fetch('/api/sub-subjects', {
+                const response = await fetch(`${API_BASE}/api/sub-subjects`, {
                     method: 'POST', 
                     headers: {
                         'Content-Type': 'application/json',
@@ -263,7 +264,7 @@ export class SyncService {
         const token = localStorage.getItem('access_token')
         const gradeStore = useGradeStore()
 
-        const response = await fetch('/api/grades', {
+        const response = await fetch(`${API_BASE}/api/grades`, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
@@ -301,7 +302,7 @@ export class SyncService {
 
         for (const grade of grades){
             if (grade.synced === 0) {
-                const response = await fetch('/api/grades', {
+                const response = await fetch(`${API_BASE}/api/grades`, {
                     method: 'POST', 
                     headers: {
                         'Content-Type': 'application/json',

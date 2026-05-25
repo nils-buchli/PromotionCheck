@@ -116,6 +116,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useUserStore } from '../stores/userStore'
+import { API_BASE } from '../config'
 
 defineEmits(['switch-to-register', 'back']) 
 
@@ -143,7 +144,7 @@ async function submit() {
 
     if (isUsernameInvalid.value || isPasswordInvalid.value) return
 
-    const response = await fetch('/api/login', {
+    const response = await fetch(`${API_BASE}/api/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: username.value, password: password.value })

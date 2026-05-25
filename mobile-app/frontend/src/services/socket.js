@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { useUserStore } from '../stores/userStore'
 import { SyncService } from './sync'
 import db from './db'
+import { API_BASE } from '../config'
 
 export class SocketService {
     async init() {
@@ -13,7 +14,7 @@ export class SocketService {
         const token = localStorage.getItem('access_token')
         
         // init socket
-        this.socket = io('https://456-optiplex.ddns.net', {
+        this.socket = io(API_BASE, {
             path: '/api/socket.io', 
             auth: {token}, 
         })
