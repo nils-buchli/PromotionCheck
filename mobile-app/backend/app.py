@@ -29,7 +29,7 @@ def create_app():
 
     db.init_app(app)
     jwt.init_app(app)
-    allowed_origins = ["https://456-optiplex.ddns.net", "capacitor://localhost"]
+    allowed_origins = ["https://456-optiplex.ddns.net", "capacitor://localhost", "http://localhost", "https://localhost"]
     socketio.init_app(app, path="/socket.io", cors_allowed_origins=allowed_origins)
 
     CORS(app, origins=allowed_origins, supports_credentials=True)
