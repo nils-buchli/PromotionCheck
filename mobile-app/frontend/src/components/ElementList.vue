@@ -128,7 +128,11 @@ const pluspoints = computed(() => {
         case 'subject':
             pp = subjectStore.getPlusPointsByYear()[props.addrId]
             break
+        case 'subSubject': 
+            pp = gradeStore.getPlusPointsBySubject()[props.addrId]
+            break
         case 'grade':
+            if (!subSubjectStore.subSubjectById[props.addrId])
             pp = gradeStore.getPlusPointsBySubject()[props.addrId]
             break
     }

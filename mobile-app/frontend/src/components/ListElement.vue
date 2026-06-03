@@ -217,7 +217,7 @@ const hasSubSubject = computed(() =>
 const hasWeight     = computed(() => route.name !== 'years')
 const hasTeacher    = computed(() => route.name === 'subjects')
 const hasSubElement = computed(() => route.name !== 'grades')
-const hasPlusPoints = computed(() => route.name !== 'grades')
+const hasPlusPoints = computed(() => route.name !== 'grades' && route.name !== 'subSubjects')
 const hasDate       = computed(() => route.name === 'grades')
 
 const data = computed(() => {
