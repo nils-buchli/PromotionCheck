@@ -10,27 +10,29 @@
                     <div
                         v-if="isOpen"
                         @click.stop
-                        class="bg-zinc-50 rounded-3xl shadow-lg w-full mx-4 max-w-sm overflow-hidden"
+                        class="bg-zinc-50 rounded-2xl shadow-lg w-full mx-5 max-w-sm overflow-hidden"
                     >
                         <!-- Header -->
                         <div class="px-5 pt-5 pb-2">
                             <h2 class="text-[17px] font-semibold text-zinc-900">{{ title }}</h2>
                         </div>
 
-                        <!-- Felder -->
+                        <!-- Fields -->
                         <div class="px-5 pb-2">
 
                             <!-- Name -->
                             <div class="mt-3">
-                                <p class="text-[11px] font-semibold text-zinc-400 uppercase tracking-widest mb-2 px-1">Name</p>
+                                <label for="edit-name" class="text-[11px] font-semibold text-zinc-400 uppercase tracking-widest mb-2 px-1 block">Name</label>
                                 <div class="bg-white rounded-2xl border border-zinc-200 overflow-hidden focus-within:border-zinc-400 transition-colors">
                                     <input
+                                        id="edit-name"
                                         v-model="form.title"
                                         placeholder="Name"
                                         type="text"
+                                        inputmode="text"
                                         @blur="touched.title = true"
                                         :class="[
-                                            'w-full px-4 py-3.5 text-[15px] bg-transparent focus:outline-none placeholder:text-zinc-300',
+                                            'w-full px-4 py-3.5 text-base bg-transparent focus:outline-none placeholder:text-zinc-300',
                                             isTitleInvalid ? 'text-red-500' : 'text-zinc-900'
                                         ]"
                                     />
@@ -38,24 +40,27 @@
                                 <p
                                     class="text-[11px] text-red-400 mt-1.5 px-1 transition-opacity duration-150"
                                     :class="isTitleInvalid ? 'opacity-100' : 'opacity-0'"
+                                    role="alert"
                                 >
-                                    Please enter a name. 
+                                    Please enter a name.
                                 </p>
                             </div>
 
-                            <!-- Gewichtung -->
+                            <!-- Weight -->
                             <div v-if="hasWeight" class="mt-1">
-                                <p class="text-[11px] font-semibold text-zinc-400 uppercase tracking-widest mb-2 px-1">Weight</p>
+                                <label for="edit-weight" class="text-[11px] font-semibold text-zinc-400 uppercase tracking-widest mb-2 px-1 block">Weight</label>
                                 <div class="bg-white rounded-2xl border border-zinc-200 overflow-hidden focus-within:border-zinc-400 transition-colors">
                                     <input
+                                        id="edit-weight"
                                         v-model.number="form.weight"
                                         placeholder="Weight"
                                         type="number"
+                                        inputmode="decimal"
                                         step="0.5"
                                         min="0"
                                         @blur="touched.weight = true"
                                         :class="[
-                                            'w-full px-4 py-3.5 text-[15px] bg-transparent focus:outline-none placeholder:text-zinc-300',
+                                            'w-full px-4 py-3.5 text-base bg-transparent focus:outline-none placeholder:text-zinc-300',
                                             isWeightInvalid ? 'text-red-500' : 'text-zinc-900'
                                         ]"
                                     />
@@ -63,25 +68,28 @@
                                 <p
                                     class="text-[11px] text-red-400 mt-1.5 px-1 transition-opacity duration-150"
                                     :class="isWeightInvalid ? 'opacity-100' : 'opacity-0'"
+                                    role="alert"
                                 >
-                                    Please enter a weight. 
+                                    Please enter a weight.
                                 </p>
                             </div>
 
-                            <!-- Note -->
+                            <!-- Mark -->
                             <div v-if="hasMark" class="mt-1">
-                                <p class="text-[11px] font-semibold text-zinc-400 uppercase tracking-widest mb-2 px-1">Mark</p>
+                                <label for="edit-mark" class="text-[11px] font-semibold text-zinc-400 uppercase tracking-widest mb-2 px-1 block">Mark</label>
                                 <div class="bg-white rounded-2xl border border-zinc-200 overflow-hidden focus-within:border-zinc-400 transition-colors">
                                     <input
+                                        id="edit-mark"
                                         v-model.number="form.mark"
                                         placeholder="Mark"
                                         type="number"
+                                        inputmode="decimal"
                                         step="0.5"
                                         min="1"
                                         max="6"
                                         @blur="touched.mark = true"
                                         :class="[
-                                            'w-full px-4 py-3.5 text-[15px] bg-transparent focus:outline-none placeholder:text-zinc-300',
+                                            'w-full px-4 py-3.5 text-base bg-transparent focus:outline-none placeholder:text-zinc-300',
                                             isMarkInvalid ? 'text-red-500' : 'text-zinc-900'
                                         ]"
                                     />
@@ -89,6 +97,7 @@
                                 <p
                                     class="text-[11px] text-red-400 mt-1.5 px-1 transition-opacity duration-150"
                                     :class="isMarkInvalid ? 'opacity-100' : 'opacity-0'"
+                                    role="alert"
                                 >
                                     Please enter a mark.
                                 </p>
@@ -101,6 +110,7 @@
                                 <p
                                     class="text-[11px] text-red-400 mt-1.5 px-1 transition-opacity duration-150"
                                     :class="isDateInvalid ? 'opacity-100' : 'opacity-0'"
+                                    role="alert"
                                 >
                                     Please enter a date.
                                 </p>
@@ -112,14 +122,12 @@
                             <button
                                 @click="close"
                                 class="flex-1 py-3.5 rounded-2xl border border-zinc-200 bg-zinc-100 active:bg-zinc-200 text-zinc-500 text-[15px] font-medium transition-colors duration-150"
-                                style="-webkit-tap-highlight-color: transparent;"
                             >
                                 Cancel
                             </button>
                             <button
                                 @click="save"
-                                class="flex-1 py-3.5 rounded-2xl bg-zinc-900 active:bg-zinc-700 text-white text-[15px] font-medium transition-colors duration-150"
-                                style="-webkit-tap-highlight-color: transparent;"
+                                class="flex-1 py-3.5 rounded-2xl bg-primary active:bg-primary-dark text-white text-[15px] font-medium transition-colors duration-150"
                             >
                                 Save
                             </button>
@@ -135,7 +143,7 @@
 import { ref, computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
 
-import DateSelector from '../components/DateSelector.vue' 
+import DateSelector from '../components/DateSelector.vue'
 
 const route = useRoute()
 

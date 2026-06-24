@@ -10,47 +10,53 @@
                     <div
                         v-if="isOpen"
                         @click.stop
-                        class="bg-zinc-50 rounded-3xl shadow-lg w-full mx-4 max-w-sm overflow-hidden"
+                        class="bg-zinc-50 rounded-2xl shadow-lg w-full mx-5 max-w-sm overflow-hidden"
                     >
                         <!-- Header -->
                         <div class="px-5 pt-5 pb-2">
                             <h2 class="text-[17px] font-semibold text-zinc-900">Edit Profile</h2>
                         </div>
 
-                        <!-- Felder -->
+                        <!-- Fields -->
                         <div class="px-5 pb-2">
 
                             <!-- Username -->
                             <div class="mt-3">
-                                <p class="text-[11px] font-semibold text-zinc-400 uppercase tracking-widest mb-2 px-1">Username</p>
+                                <label for="edit-username" class="text-[11px] font-semibold text-zinc-400 uppercase tracking-widest mb-2 px-1 block">Username</label>
                                 <div :class="['bg-white rounded-2xl border overflow-hidden transition-colors', hasUsernameError ? 'border-red-300' : 'border-zinc-200 focus-within:border-zinc-400']">
                                     <input
+                                        id="edit-username"
                                         v-model="form.username"
                                         placeholder="Username"
                                         type="text"
+                                        inputmode="text"
+                                        autocomplete="username"
                                         @blur="touched.username = true"
                                         @input="serverUsernameError = ''"
-                                        :class="['w-full px-4 py-3.5 text-[15px] bg-transparent focus:outline-none placeholder:text-zinc-300', hasUsernameError ? 'text-red-500' : 'text-zinc-900']"
+                                        :class="['w-full px-4 py-3.5 text-base bg-transparent focus:outline-none placeholder:text-zinc-300', hasUsernameError ? 'text-red-500' : 'text-zinc-900']"
                                     />
                                 </div>
-                                <p class="text-[11px] text-red-400 mt-1.5 px-1 transition-opacity duration-150" :class="hasUsernameError ? 'opacity-100' : 'opacity-0'">
+                                <p class="text-[11px] text-red-400 mt-1.5 px-1 transition-opacity duration-150" :class="hasUsernameError ? 'opacity-100' : 'opacity-0'" role="alert">
                                     {{ serverUsernameError || 'Please enter a username.' }}
                                 </p>
                             </div>
 
                             <!-- New Password -->
                             <div class="mt-1">
-                                <p class="text-[11px] font-semibold text-zinc-400 uppercase tracking-widest mb-2 px-1">New Password</p>
-                                <div :class="['bg-white rounded-2xl border overflow-hidden flex items-center pr-4 transition-colors', isPasswordInvalid ? 'border-red-300' : 'border-zinc-200 focus-within:border-zinc-400']">
+                                <label for="edit-new-password" class="text-[11px] font-semibold text-zinc-400 uppercase tracking-widest mb-2 px-1 block">New Password</label>
+                                <div :class="['bg-white rounded-2xl border flex items-center transition-colors', isPasswordInvalid ? 'border-red-300' : 'border-zinc-200 focus-within:border-zinc-400']">
                                     <input
+                                        id="edit-new-password"
                                         v-model="form.password"
                                         placeholder="New password"
                                         :type="showPassword ? 'text' : 'password'"
+                                        autocomplete="new-password"
                                         @blur="touched.password = true"
-                                        :class="['flex-1 px-4 py-3.5 text-[15px] bg-transparent focus:outline-none placeholder:text-zinc-300', isPasswordInvalid ? 'text-red-500' : 'text-zinc-900']"
+                                        :class="['flex-1 px-4 py-3.5 text-base bg-transparent focus:outline-none placeholder:text-zinc-300', isPasswordInvalid ? 'text-red-500' : 'text-zinc-900']"
                                     />
-                                    <!-- showPassword Button -->
-                                    <button type="button" @click="showPassword = !showPassword" class="text-zinc-300 active:text-zinc-500 transition-colors" style="-webkit-tap-highlight-color: transparent;">
+                                    <button type="button" @click="showPassword = !showPassword"
+                                        class="flex items-center justify-center w-11 h-11 mr-1 text-zinc-300 active:text-zinc-500 transition-colors flex-shrink-0"
+                                        aria-label="Toggle password visibility">
                                         <svg v-if="!showPassword" class="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
                                             <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
                                         </svg>
@@ -59,24 +65,27 @@
                                         </svg>
                                     </button>
                                 </div>
-                                <p class="text-[11px] text-red-400 mt-1.5 px-1 transition-opacity duration-150" :class="isPasswordInvalid ? 'opacity-100' : 'opacity-0'">
+                                <p class="text-[11px] text-red-400 mt-1.5 px-1 transition-opacity duration-150" :class="isPasswordInvalid ? 'opacity-100' : 'opacity-0'" role="alert">
                                     Password must be at least 6 characters.
                                 </p>
                             </div>
 
                             <!-- Confirm Password -->
                             <div class="mt-1">
-                                <p class="text-[11px] font-semibold text-zinc-400 uppercase tracking-widest mb-2 px-1">Confirm Password</p>
-                                <div :class="['bg-white rounded-2xl border overflow-hidden flex items-center pr-4 transition-colors', isConfirmInvalid ? 'border-red-300' : 'border-zinc-200 focus-within:border-zinc-400']">
+                                <label for="edit-confirm-password" class="text-[11px] font-semibold text-zinc-400 uppercase tracking-widest mb-2 px-1 block">Confirm Password</label>
+                                <div :class="['bg-white rounded-2xl border flex items-center transition-colors', isConfirmInvalid ? 'border-red-300' : 'border-zinc-200 focus-within:border-zinc-400']">
                                     <input
+                                        id="edit-confirm-password"
                                         v-model="form.confirmPassword"
                                         placeholder="Repeat new password"
                                         :type="showConfirm ? 'text' : 'password'"
+                                        autocomplete="new-password"
                                         @blur="touched.confirmPassword = true"
-                                        :class="['flex-1 px-4 py-3.5 text-[15px] bg-transparent focus:outline-none placeholder:text-zinc-300', isConfirmInvalid ? 'text-red-500' : 'text-zinc-900']"
+                                        :class="['flex-1 px-4 py-3.5 text-base bg-transparent focus:outline-none placeholder:text-zinc-300', isConfirmInvalid ? 'text-red-500' : 'text-zinc-900']"
                                     />
-                                    <!-- showConfirm Button -->
-                                    <button type="button" @click="showConfirm = !showConfirm" class="text-zinc-300 active:text-zinc-500 transition-colors" style="-webkit-tap-highlight-color: transparent;">
+                                    <button type="button" @click="showConfirm = !showConfirm"
+                                        class="flex items-center justify-center w-11 h-11 mr-1 text-zinc-300 active:text-zinc-500 transition-colors flex-shrink-0"
+                                        aria-label="Toggle password visibility">
                                         <svg v-if="!showConfirm" class="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
                                             <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
                                         </svg>
@@ -85,7 +94,7 @@
                                         </svg>
                                     </button>
                                 </div>
-                                <p class="text-[11px] text-red-400 mt-1.5 px-1 transition-opacity duration-150" :class="isConfirmInvalid ? 'opacity-100' : 'opacity-0'">
+                                <p class="text-[11px] text-red-400 mt-1.5 px-1 transition-opacity duration-150" :class="isConfirmInvalid ? 'opacity-100' : 'opacity-0'" role="alert">
                                     Passwords do not match.
                                 </p>
                             </div>
@@ -97,14 +106,12 @@
                             <button
                                 @click="close"
                                 class="flex-1 py-3.5 rounded-2xl border border-zinc-200 bg-zinc-100 active:bg-zinc-200 text-zinc-500 text-[15px] font-medium transition-colors duration-150"
-                                style="-webkit-tap-highlight-color: transparent;"
                             >
                                 Cancel
                             </button>
                             <button
                                 @click="save"
-                                class="flex-1 py-3.5 rounded-2xl text-white text-[15px] font-medium transition-colors duration-150 bg-zinc-900 active:bg-zinc-700"
-                                style="-webkit-tap-highlight-color: transparent;"
+                                class="flex-1 py-3.5 rounded-2xl text-white text-[15px] font-medium transition-colors duration-150 bg-primary active:bg-primary-dark"
                             >
                                 Save
                             </button>
@@ -174,7 +181,7 @@ async function save() {
         return
     }
 
-    if (payload?.username) userStore.user.name = payload.username  
+    if (payload?.username) userStore.user.name = payload.username
     close()
 }
 </script>

@@ -29,17 +29,17 @@
 
             <!-- Orange handle -->
             <div
-                class="absolute w-6 h-6 rounded-full bg-white border-[3px] border-orange-600 shadow-md"
+                class="absolute w-7 h-7 rounded-full bg-white border-[3px] border-orange-600 shadow-md"
                 style="touch-action: none; cursor: grab;"
-                :style="{ left: `calc(${offsetPct(lowPct)}% - 12px)`, zIndex: lowPct >= 50 ? 20 : 10 }"
+                :style="{ left: `calc(${offsetPct(lowPct)}% - 14px)`, zIndex: lowPct >= 50 ? 20 : 10 }"
                 @pointerdown.stop.prevent="startDrag('low', $event)"
             />
 
             <!-- Green handle -->
             <div
-                class="absolute w-6 h-6 rounded-full bg-white border-[3px] border-emerald-600 shadow-md"
+                class="absolute w-7 h-7 rounded-full bg-white border-[3px] border-emerald-600 shadow-md"
                 style="touch-action: none; cursor: grab;"
-                :style="{ left: `calc(${offsetPct(highPct)}% - 12px)`, zIndex: lowPct >= 50 ? 10 : 20 }"
+                :style="{ left: `calc(${offsetPct(highPct)}% - 14px)`, zIndex: lowPct >= 50 ? 10 : 20 }"
                 @pointerdown.stop.prevent="startDrag('high', $event)"
             />
         </div>

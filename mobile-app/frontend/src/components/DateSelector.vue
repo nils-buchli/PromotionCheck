@@ -5,9 +5,11 @@
         <div
             @click="toggle"
             :class="[
-                'w-full px-4 py-3.5 text-[15px] bg-white rounded-2xl border border-zinc-200 flex items-center justify-between cursor-pointer select-none transition-colors duration-150',
-                isOpen ? 'border-zinc-300' : ''
+                'w-full px-4 py-3.5 text-base bg-white rounded-2xl border border-zinc-200 flex items-center justify-between cursor-pointer select-none transition-colors duration-150',
+                isOpen ? 'border-zinc-400' : ''
             ]"
+            role="button"
+            aria-label="Select date"
         >
             <span :class="modelValue ? 'text-zinc-900' : 'text-zinc-300'">
                 {{ modelValue || 'Date' }}
@@ -24,13 +26,14 @@
         <Transition name="picker">
             <div
                 v-if="isOpen"
-                class="absolute left-0 right-0 z-50 mb-2 bg-white border border-zinc-200 rounded-2xl overflow-hidden shadow-sm bottom-full"
+                class="absolute left-0 right-0 z-50 mb-2 bg-white border border-zinc-200 rounded-2xl overflow-hidden shadow-lg bottom-full"
             >
                 <!-- Month Nav -->
                 <div class="flex items-center justify-between px-4 py-3 border-b border-zinc-100">
                     <button
                         @click="prevMonth"
-                        class="w-11 h-11 flex items-center justify-center rounded-xl hover:bg-zinc-100 active:bg-zinc-200 transition-colors"
+                        class="w-11 h-11 flex items-center justify-center rounded-xl active:bg-zinc-100 transition-colors"
+                        aria-label="Previous month"
                     >
                         <svg class="w-4 h-4 text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
@@ -43,7 +46,8 @@
 
                     <button
                         @click="nextMonth"
-                        class="w-11 h-11 flex items-center justify-center rounded-xl hover:bg-zinc-100 active:bg-zinc-200 transition-colors"
+                        class="w-11 h-11 flex items-center justify-center rounded-xl active:bg-zinc-100 transition-colors"
+                        aria-label="Next month"
                     >
                         <svg class="w-4 h-4 text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
@@ -69,14 +73,14 @@
                         :key="i"
                         @click="cell.day ? selectDay(cell.day) : null"
                         :class="[
-                            'flex items-center justify-center h-11 rounded-xl text-[14px] transition-colors duration-100',
+                            'flex items-center justify-center h-11 rounded-xl text-sm transition-colors duration-100',
                             !cell.day ? '' : 'cursor-pointer',
                             cell.isSelected
-                                ? 'bg-zinc-900 text-white font-semibold'
+                                ? 'bg-primary text-white font-semibold'
                                 : cell.isToday
                                     ? 'bg-zinc-100 text-zinc-900 font-semibold'
                                     : cell.day
-                                        ? 'text-zinc-800 hover:bg-zinc-100 active:bg-zinc-200'
+                                        ? 'text-zinc-800 active:bg-zinc-100'
                                         : ''
                         ]"
                     >
@@ -127,7 +131,6 @@ const selectedDate = computed(() => {
     }
 })
 
-// Wenn ein initialer Wert gesetzt ist, Calendar auf dessen Monat/Jahr springen
 watch(selectedDate, (val) => {
     if (val) {
         viewMonth.value = val.month
@@ -189,6 +192,6 @@ const handleClickOutside = (e) => {
     }
 }
 
-onMounted(() => document.addEventListener('mousedown', handleClickOutside))
-onBeforeUnmount(() => document.removeEventListener('mousedown', handleClickOutside))
+onMounted(() => document.addEventListener('pointerdown', handleClickOutside))
+onBeforeUnmount(() => document.removeEventListener('pointerdown', handleClickOutside))
 </script>

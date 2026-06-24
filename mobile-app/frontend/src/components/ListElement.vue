@@ -162,7 +162,6 @@ import { useSettingsStore } from '../stores/settings'
 
 
 import EditIsland from './EditIsland.vue'
-import DreamGradeIsland from './DreamGradeIsland.vue'
 
 const route  = useRoute()
 const router = useRouter()

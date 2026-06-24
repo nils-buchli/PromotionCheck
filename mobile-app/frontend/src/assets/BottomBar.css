@@ -4,24 +4,25 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 4px;
-    width: 52px;
+    gap: 5px;
+    width: 56px;
     height: 52px;
     border: none;
     background: transparent;
     cursor: pointer;
-    border-radius: 12px;
+    border-radius: 14px;
     padding: 0;
-    transition: color 150ms ease;
+    transition: color 150ms ease, background-color 150ms ease;
 }
-.nav-btn:active { background: #e4e4e7; }
+.nav-btn:active {
+    background: rgba(26, 60, 143, 0.06);
+}
 
-.dot {
+.indicator {
     display: block;
-    width: 5px;
-    height: 5px;
-    border-radius: 9999px;
+    width: 16px;
+    height: 2.5px;
+    border-radius: 2px;
     background: currentColor;
-    transition: opacity 150ms ease;
+    transition: opacity 150ms ease, width 150ms ease;
 }
-

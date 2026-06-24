@@ -2,8 +2,7 @@
     <div class="relative" ref="dropdownRef">
         <button
             @click="open = !open"
-            class="w-full px-4 py-2.5 rounded-xl bg-zinc-100 border border-zinc-200 text-left text-sm text-zinc-900 font-medium active:bg-zinc-200 transition-colors flex items-center justify-between"
-            style="-webkit-tap-highlight-color: transparent;"
+            class="w-full px-4 py-3 rounded-xl bg-zinc-100 border border-zinc-200 text-left text-sm text-zinc-900 font-medium active:bg-zinc-200 transition-colors flex items-center justify-between min-h-[44px]"
         >
             <span>{{ selected?.label }}</span>
             <svg :class="['w-4 h-4 text-zinc-400 transition-transform duration-200 flex-shrink-0', open ? 'rotate-180' : '']" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -23,8 +22,7 @@
                 <div
                     v-for="option in options" :key="option.value"
                     @click="select(option)"
-                    :class="['px-4 py-2.5 text-sm cursor-pointer transition-colors flex items-center justify-between', selected?.value === option.value ? 'bg-zinc-100 text-zinc-900 font-medium' : 'text-zinc-700 active:bg-zinc-50']"
-                    style="-webkit-tap-highlight-color: transparent;"
+                    :class="['px-4 py-3 text-sm cursor-pointer transition-colors flex items-center justify-between min-h-[44px]', selected?.value === option.value ? 'bg-zinc-100 text-zinc-900 font-medium' : 'text-zinc-700 active:bg-zinc-50']"
                 >
                     <span>{{ option.label }}</span>
                     <svg v-if="selected?.value === option.value" class="w-4 h-4 text-zinc-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">

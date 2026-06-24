@@ -6,22 +6,21 @@
     <div v-else class="flex flex-col flex-1 bg-zinc-50 overflow-y-auto">
         <!-- Avatar + Name -->
         <div class="flex flex-col items-center mt-10 mb-2">
-            <div class="h-16 w-16 rounded-full bg-zinc-200 flex items-center justify-center mb-3">
-                <span class="text-2xl font-semibold text-zinc-600">{{ initial }}</span>
+            <div class="h-20 w-20 rounded-full bg-primary/10 flex items-center justify-center mb-3">
+                <span class="text-2xl font-semibold text-primary">{{ initial }}</span>
             </div>
             <p class="text-[17px] font-semibold text-zinc-900">{{ username }}</p>
             <p class="text-[13px] text-zinc-400 mt-0.5">Username</p>
             <button
                 type="button"
                 @click="editMode = true"
-                class="flex items-center gap-1 mt-2 text-zinc-400 active:text-zinc-600 transition-colors"
-                style="-webkit-tap-highlight-color: transparent;"
+                class="flex items-center gap-1.5 mt-2 px-3 py-1.5 text-primary active:text-primary-dark transition-colors rounded-lg min-h-[44px]"
             >
                 <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
                     <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
                 </svg>
-                <span class="text-[12px]">Edit</span>
+                <span class="text-[13px] font-medium">Edit</span>
             </button>
         </div>
 

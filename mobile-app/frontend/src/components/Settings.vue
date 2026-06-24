@@ -15,7 +15,7 @@
                 <div class="flex items-center justify-between mb-2">
                     <div>
                         <p class="text-[15px] font-medium text-zinc-900">Rounding</p>
-                        <p class="text-[12px] text-zinc-400 mt-0.5">Round averages to:</p>
+                        <p class="text-xs text-zinc-400 mt-0.5">Round averages to:</p>
                     </div>
                 </div>
                 <SettingsDropdown :options="roundOptions" v-model="selectedRoundOption"/>
@@ -28,21 +28,21 @@
                 <div class="flex items-center justify-between mb-2">
                     <div>
                         <p class="text-[15px] font-medium text-zinc-900">Sorting</p>
-                        <p class="text-[12px] text-zinc-400 mt-0.5">Sort years by:</p>
+                        <p class="text-xs text-zinc-400 mt-0.5">Sort years by:</p>
                     </div>
                 </div>
                 <SettingsDropdown :options="sortYearAndSubjectOptions" v-model="selectedSortYearOption"/>
-                
+
                 <div class="flex items-center justify-between mb-2">
-                    <p class="text-[12px] text-zinc-400 mt-1.5">Sort subjects by:</p>
+                    <p class="text-xs text-zinc-400 mt-1.5">Sort subjects by:</p>
                 </div>
                 <SettingsDropdown :options="sortYearAndSubjectOptions" v-model="selectedSortSubjectOption"/>
-                
+
                 <div class="flex items-center justify-between mb-2">
-                    <p class="text-[12px] text-zinc-400 mt-1.5">Sort grades by:</p>
+                    <p class="text-xs text-zinc-400 mt-1.5">Sort grades by:</p>
                 </div>
                 <SettingsDropdown :options="sortGradeOptions" v-model="selectedSortGradeOption"/>
-                
+
             </div>
 
             <div class="mx-4 border-t border-zinc-100" />
@@ -51,14 +51,14 @@
             <div class="px-4 py-3 flex items-center justify-between">
                 <div>
                     <p class="text-[15px] font-medium text-zinc-900">Pluspoints</p>
-                    <p class="text-[12px] text-zinc-400 mt-0.5">Show pluspoints:</p>
+                    <p class="text-xs text-zinc-400 mt-0.5">Show pluspoints:</p>
                 </div>
                 <button type="button" role="switch" :aria-checked="ppToggleEnabled"
-                    class="relative inline-flex h-6 w-10 shrink-0 cursor-pointer items-center rounded-full border transition-all duration-200 focus:outline-none"
-                    :class="ppToggleEnabled ? 'bg-zinc-900 border-zinc-900' : 'bg-zinc-200 border-zinc-200'"
-                    @click="ppToggleEnabled = !ppToggleEnabled" style="-webkit-tap-highlight-color: transparent;">
-                    <span class="pointer-events-none inline-block h-4 w-4 rounded-full bg-white shadow transform transition-transform duration-200"
-                        :class="ppToggleEnabled ? 'translate-x-5' : 'translate-x-1'" />
+                    class="relative inline-flex h-7 w-12 shrink-0 cursor-pointer items-center rounded-full border transition-all duration-200"
+                    :class="ppToggleEnabled ? 'bg-primary border-primary' : 'bg-zinc-200 border-zinc-200'"
+                    @click="ppToggleEnabled = !ppToggleEnabled">
+                    <span class="pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow transform transition-transform duration-200"
+                        :class="ppToggleEnabled ? 'translate-x-6' : 'translate-x-1'" />
                 </button>
             </div>
 
@@ -68,14 +68,14 @@
             <div class="px-4 py-3 flex items-center justify-between transition-opacity duration-200" :class="!ppToggleEnabled ? 'opacity-40' : ''">
                 <div>
                     <p class="text-[15px] font-medium text-zinc-900">Double compensation</p>
-                    <p class="text-[12px] text-zinc-400 mt-0.5">Compensate marks below 4 double:</p>
+                    <p class="text-xs text-zinc-400 mt-0.5">Compensate marks below 4 double:</p>
                 </div>
                 <button type="button" role="switch" :aria-checked="dcToggleEnabled" :disabled="!ppToggleEnabled"
-                    class="relative inline-flex h-6 w-10 shrink-0 items-center rounded-full border transition-all duration-200 focus:outline-none"
-                    :class="[dcToggleEnabled ? 'bg-zinc-900 border-zinc-900' : 'bg-zinc-200 border-zinc-200', !ppToggleEnabled ? 'cursor-not-allowed' : 'cursor-pointer']"
-                    @click="ppToggleEnabled ? dcToggleEnabled = !dcToggleEnabled : null" style="-webkit-tap-highlight-color: transparent;">
-                    <span class="pointer-events-none inline-block h-4 w-4 rounded-full bg-white shadow transform transition-transform duration-200"
-                        :class="dcToggleEnabled ? 'translate-x-5' : 'translate-x-1'" />
+                    class="relative inline-flex h-7 w-12 shrink-0 items-center rounded-full border transition-all duration-200"
+                    :class="[dcToggleEnabled ? 'bg-primary border-primary' : 'bg-zinc-200 border-zinc-200', !ppToggleEnabled ? 'cursor-not-allowed' : 'cursor-pointer']"
+                    @click="ppToggleEnabled ? dcToggleEnabled = !dcToggleEnabled : null">
+                    <span class="pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow transform transition-transform duration-200"
+                        :class="dcToggleEnabled ? 'translate-x-6' : 'translate-x-1'" />
                 </button>
             </div>
 
@@ -87,8 +87,8 @@
                 <!-- Subject Threshold -->
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-[12px] text-zinc-400 mt-0.5">Pluspoint coloring of a subject:</p>
-                        <p class="text-[12px] text-zinc-400 mt-0.5">
+                        <p class="text-xs text-zinc-400 mt-0.5">Pluspoint coloring of a subject:</p>
+                        <p class="text-xs text-zinc-400 mt-0.5">
                             <span class="text-orange-400 font-medium tabular-nums">{{ subjectLow }}</span>
                             <span class="text-zinc-300 mx-1">|</span>
                             <span class="text-emerald-500 font-medium tabular-nums">{{ subjectHigh }}</span>
@@ -100,8 +100,8 @@
                 <!-- Year Threshold -->
                 <div class="flex items-center justify-between mb-3">
                     <div>
-                        <p class="text-[12px] text-zinc-400 mt-0.5">Pluspoint coloring of a year:</p>
-                        <p class="text-[12px] text-zinc-400 mt-0.5">
+                        <p class="text-xs text-zinc-400 mt-0.5">Pluspoint coloring of a year:</p>
+                        <p class="text-xs text-zinc-400 mt-0.5">
                             <span class="text-orange-400 font-medium tabular-nums">{{ yearLow }}</span>
                             <span class="text-zinc-300 mx-1">|</span>
                             <span class="text-emerald-500 font-medium tabular-nums">{{ yearHigh }}</span>
@@ -135,24 +135,24 @@ const roundOptions = [
 const selectedRoundOption = ref(roundOptions.find(o => o.value === settingsStore.roundToThs) ?? roundOptions[1])
 
 const sortYearAndSubjectOptions = [
-    { value: 'nd', label: 'Name descending' }, 
-    { value: 'na', label: 'Name ascending' }, 
-    { value: 'vd', label: 'Average descending' }, 
+    { value: 'nd', label: 'Name descending' },
+    { value: 'na', label: 'Name ascending' },
+    { value: 'vd', label: 'Average descending' },
     { value: 'va', label: 'Average ascending' }
 ]
-const selectedSortYearOption = ref(sortYearAndSubjectOptions.find(o => o.value === settingsStore.sorting.year) ?? sortYearAndSubjectOptions[0]) 
+const selectedSortYearOption = ref(sortYearAndSubjectOptions.find(o => o.value === settingsStore.sorting.year) ?? sortYearAndSubjectOptions[0])
 
-const selectedSortSubjectOption = ref(sortYearAndSubjectOptions.find(o => o.value === settingsStore.sorting.subject) ?? sortYearAndSubjectOptions[0]) 
+const selectedSortSubjectOption = ref(sortYearAndSubjectOptions.find(o => o.value === settingsStore.sorting.subject) ?? sortYearAndSubjectOptions[0])
 
 const sortGradeOptions = [
-    { value: 'nd', label: 'Name descending' }, 
-    { value: 'na', label: 'Name ascending' }, 
-    { value: 'vd', label: 'Mark descending' }, 
-    { value: 'va', label: 'Mark ascending' }, 
-    { value: 'dd', label: 'Date descending' }, 
-    { value: 'da', label: 'Date ascending' }, 
+    { value: 'nd', label: 'Name descending' },
+    { value: 'na', label: 'Name ascending' },
+    { value: 'vd', label: 'Mark descending' },
+    { value: 'va', label: 'Mark ascending' },
+    { value: 'dd', label: 'Date descending' },
+    { value: 'da', label: 'Date ascending' },
 ]
-const selectedSortGradeOption = ref(sortGradeOptions.find(o => o.value === settingsStore.sorting.grade) ?? sortGradeOptions[0]) 
+const selectedSortGradeOption = ref(sortGradeOptions.find(o => o.value === settingsStore.sorting.grade) ?? sortGradeOptions[0])
 
 
 // --- Toggles ---

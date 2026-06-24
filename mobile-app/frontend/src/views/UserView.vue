@@ -27,15 +27,15 @@
                         style="-webkit-tap-highlight-color: transparent;"
                     >
                         <div class="flex items-center gap-3">
-                            <div class="h-8 w-8 rounded-full bg-zinc-100 flex items-center justify-center">
-                                <svg class="w-4 h-4 text-zinc-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                            <div class="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
+                                <svg class="w-4 h-4 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
                                     <circle cx="12" cy="7" r="4"/>
                                 </svg>
                             </div>
                             <div class="text-left">
                                 <p class="text-[15px] font-medium text-zinc-900">Log in to sync your data</p>
-                                <p class="text-[12px] text-zinc-400 mt-0.5">Your data stays local until you sign in</p>
+                                <p class="text-xs text-zinc-400 mt-0.5">Your data stays local until you sign in</p>
                             </div>
                         </div>
                         <svg class="w-4 h-4 text-zinc-400 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

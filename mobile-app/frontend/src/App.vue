@@ -37,8 +37,10 @@
       <AppBar />
 
       <main class="flex-1 min-h-0 flex overflow-hidden">
-        <router-view v-if="globalStatesStore.initComplete" v-slot="{ Component }">
-          <component :is="Component" class="flex-1 min-h-0" />
+        <router-view v-if="globalStatesStore.initComplete" v-slot="{ Component, route }">
+          <Transition name="page" mode="out-in">
+            <component :is="Component" :key="route.path" class="flex-1 min-h-0" />
+          </Transition>
         </router-view>
       </main>
 
@@ -77,12 +79,20 @@ watch(() => globalStatesStore.removingElements, (v) => {
 </script>
 
 <style scoped>
-@import './assets/app.css';
-
 .loading-leave-active {
   transition: opacity 0.35s ease;
 }
 .loading-leave-to {
+  opacity: 0;
+}
+.page-enter-active {
+  transition: opacity 120ms ease;
+}
+.page-leave-active {
+  transition: opacity 80ms ease;
+}
+.page-enter-from,
+.page-leave-to {
   opacity: 0;
 }
 </style>

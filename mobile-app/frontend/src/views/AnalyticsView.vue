@@ -1,6 +1,12 @@
 <template>
-    <div v-if="yearStore.years.length === 0" class="flex-1 flex items-center justify-center">
-        <p class="text-[13px] text-zinc-400">No years yet.</p>
+    <div v-if="yearStore.years.length === 0" class="flex-1 flex flex-col items-center justify-center px-8">
+        <div class="w-14 h-14 rounded-2xl bg-zinc-100 flex items-center justify-center mb-4">
+            <svg class="w-6 h-6 text-zinc-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/>
+            </svg>
+        </div>
+        <p class="text-[15px] font-medium text-zinc-500 mb-1">No data yet</p>
+        <p class="text-[13px] text-zinc-400 text-center leading-relaxed">Add years and grades to see your analytics</p>
     </div>
     <main v-else class="flex flex-col h-full w-full overflow-hidden">
         <div class="px-4 py-3 bg-white border-b border-zinc-200/50 flex-shrink-0 w-full">
@@ -8,7 +14,7 @@
                 <button
                     @click="dropdownOpen = !dropdownOpen"
                     class="w-full px-4 py-3.5 rounded-2xl bg-white border border-zinc-200 text-left text-[15px] text-zinc-900 font-medium active:bg-zinc-50 transition-colors flex items-center justify-between"
-                    style="-webkit-tap-highlight-color: transparent;"
+                    aria-label="Select year"
                 >
                     <span>{{ selectedYear }}</span>
                     <svg
@@ -22,7 +28,7 @@
 
                 <div
                     v-if="dropdownOpen"
-                    class="absolute top-full left-0 right-0 mt-1 bg-white border border-zinc-200 rounded-2xl shadow-lg z-50 overflow-hidden"
+                    class="absolute top-full left-0 right-0 mt-1 bg-white border border-zinc-200 rounded-2xl shadow-lg z-30 overflow-hidden"
                 >
                     <div
                         v-for="year in yearStore.years"
@@ -32,7 +38,6 @@
                             'px-4 py-3 text-[15px] text-zinc-900 cursor-pointer transition-colors',
                             selectedYearId === year.id ? 'bg-zinc-50 font-semibold' : 'active:bg-zinc-50'
                         ]"
-                        style="-webkit-tap-highlight-color: transparent;"
                     >
                         {{ year.name }}
                     </div>
@@ -42,8 +47,13 @@
 
         <div class="flex-1 flex flex-col min-h-0 w-full overflow-hidden">
             <div class="flex-1 px-3 py-3 min-h-0 flex flex-col w-full overflow-hidden">
-                <div v-if="currentAverages.length < 2" class="flex-1 flex items-center justify-center">
-                    <p class="text-[13px] text-zinc-400">Not enough data yet.</p>
+                <div v-if="currentAverages.length < 2" class="flex-1 flex flex-col items-center justify-center px-4">
+                    <div class="w-12 h-12 rounded-xl bg-zinc-100 flex items-center justify-center mb-3">
+                        <svg class="w-5 h-5 text-zinc-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                        </svg>
+                    </div>
+                    <p class="text-[13px] text-zinc-400 text-center leading-relaxed">Add at least 2 grades to see the progression chart</p>
                 </div>
                 <div v-else class="bg-white rounded-2xl p-3 border border-zinc-200/50 shadow-sm flex-1 flex flex-col min-h-0 overflow-hidden">
                     <div class="mb-2 flex-shrink-0">
@@ -87,14 +97,14 @@
     const analyticsStore   = useAnalyticsStore()
     const globalStateStore = useGlobalStatesStore()
 
-    
+
     const selectedYearId = ref(globalStateStore.selectedAnalyticsYearId ? globalStateStore.selectedAnalyticsYearId : yearStore.years[0]?.id ?? null)
 
     const selectedYear = computed(() => yearStore.yearsById[selectedYearId.value]?.name || '-')
 
     const currentAverage = computed(() => settingsStore.round(subjectStore.averageByYear[selectedYearId.value]) || '-')
 
-    const averageCount = computed(() => currentAverages.value.length) 
+    const averageCount = computed(() => currentAverages.value.length)
 
     const currentAverages = computed(() => analyticsStore.yearAverages[selectedYearId.value] || [])
 
@@ -117,8 +127,8 @@
 
         const values = averages.map(a => a.average)
 
-        const yMin = Math.min(...values) - 0.1 
-        const yMax = Math.max(...values) + 0.1 
+        const yMin = Math.min(...values) - 0.1
+        const yMax = Math.max(...values) + 0.1
 
         const ctx = chartRef.value.getContext('2d')
         chartInstance = new Chart(ctx, {
@@ -126,19 +136,19 @@
             data: {
                 labels: averages.map(a => a.date),
                 datasets: [{
-                    label: 'Notenschnitt',
+                    label: 'Average',
                     data: values,
-                    borderColor: '#1f2937',
-                    backgroundColor: 'rgba(31, 41, 55, 0.08)',
+                    borderColor: 'rgb(26, 60, 143)',
+                    backgroundColor: 'rgba(26, 60, 143, 0.08)',
                     borderWidth: 2.5,
                     fill: true,
                     tension: 0.1,
                     pointRadius: 0,
-                    pointBackgroundColor: '#1f2937',
+                    pointBackgroundColor: 'rgb(26, 60, 143)',
                     pointBorderColor: '#fff',
                     pointBorderWidth: 0,
                     pointHoverRadius: 4,
-                    pointHoverBackgroundColor: '#1f2937'
+                    pointHoverBackgroundColor: 'rgb(26, 60, 143)'
                 }]
             },
             options: {
@@ -186,7 +196,7 @@
                             padding: 2,
 
                             callback: function(value, index) {
-                                const step = Math.ceil(averages.length / 6) 
+                                const step = Math.ceil(averages.length / 6)
                                 return index % step === 0 ? averages[index].date : ''
                             }
                         }

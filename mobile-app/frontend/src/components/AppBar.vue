@@ -1,7 +1,6 @@
 <template>
     <header
-        class="sticky top-0 z-50 flex items-center justify-between h-[68px] px-5 bg-zinc-100 border-b border-zinc-200"
-        style="-webkit-tap-highlight-color: transparent;"
+        class="sticky top-0 z-40 flex items-center justify-between h-[68px] px-5 bg-zinc-100 border-b border-zinc-200"
     >
         <!-- Left: back + title -->
         <div class="flex items-center gap-1 min-w-0">
@@ -9,7 +8,7 @@
                 v-if="canGoBack"
                 @click="goBack()"
                 class="flex items-center justify-center w-11 h-11 -ml-3 flex-shrink-0 text-zinc-900 active:opacity-45 transition-opacity"
-                aria-label="Zurück"
+                aria-label="Go back"
             >
                 <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <polyline points="15 18 9 12 15 6"/>
@@ -28,6 +27,7 @@
                 @click="removeElements"
                 class="flex items-center justify-center w-11 h-11 transition-opacity active:opacity-45"
                 :class="globalStatesStore.removingElements ? 'text-red-500' : 'text-zinc-900'"
+                aria-label="Delete items"
             >
                 <svg class="w-[17px] h-[17px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
                     <polyline points="3 6 5 6 21 6"/>
@@ -43,6 +43,7 @@
                 v-if="route.name == 'grades'"
                 @click="handleDreamGrade"
                 class="flex items-center justify-center w-11 h-11 text-zinc-900 active:opacity-45 transition-opacity"
+                aria-label="Dream grade calculator"
             >
                 <svg class="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
                     <rect x="4" y="2" width="16" height="20" rx="2"/>
@@ -62,9 +63,10 @@
             <!-- Add -->
             <button
                 @click="addElement"
-                class="flex items-center justify-center w-11 h-11 text-zinc-900 active:opacity-45 transition-opacity"
+                class="flex items-center justify-center w-11 h-11 text-primary active:text-primary-dark transition-colors"
+                aria-label="Add new item"
             >
-                <svg class="w-[19px] h-[19px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <svg class="w-[19px] h-[19px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="12" y1="5" x2="12" y2="19"/>
                     <line x1="5" y1="12" x2="19" y2="12"/>
                 </svg>
@@ -72,8 +74,8 @@
 
         </div>
 
-        <DreamGradeIsland 
-           :is-open="dreamGradeMode" 
+        <DreamGradeIsland
+           :is-open="dreamGradeMode"
            :element-id="route.params.subjectId"
            @close="dreamGradeMode = false"
         />
@@ -106,21 +108,21 @@ const canGoBack   = computed(() => route.name !== 'years' && route.name !== 'use
 
 const pageName = computed(() => {
     switch (route.name) {
-        case 'years':       return 'YEARS'
-        case 'subjects':    return yearStore.yearsById[route.params.yearId]?.name?.toUpperCase() ?? '–'
-        case 'subSubjects': return subjectStore.subjectsById[route.params.subjectId]?.name?.toUpperCase() ?? '–'
+        case 'years':       return 'Years'
+        case 'subjects':    return yearStore.yearsById[route.params.yearId]?.name ?? '–'
+        case 'subSubjects': return subjectStore.subjectsById[route.params.subjectId]?.name ?? '–'
         case 'grades': {
             const el = subjectStore.subjectsById[route.params.subjectId]
                     ?? subSubjectStore.subSubjectById[route.params.subjectId]
-            return el?.name?.toUpperCase() ?? '–'
+            return el?.name ?? '–'
         }
-        case 'addYear':       return 'ADD YEAR'
-        case 'addSubject':    return 'ADD SUBJECT'
-        case 'addSubSubject': return 'ADD SUB-SUBJECT'
-        case 'addGrade':      return 'ADD GRADE'
-        case 'user':          return 'PROFILE'
-        case 'analytics':     return 'ANALYTICS'
-        case 'privacyPolicy': return 'PRIVACY POLICY'
+        case 'addYear':       return 'Add Year'
+        case 'addSubject':    return 'Add Subject'
+        case 'addSubSubject': return 'Add Sub-Subject'
+        case 'addGrade':      return 'Add Grade'
+        case 'user':          return 'Profile'
+        case 'analytics':     return 'Analytics'
+        case 'privacyPolicy': return 'Privacy Policy'
         default:              return '404'
     }
 })
@@ -147,8 +149,8 @@ const routeParent = {
     'subjects':    () => '/',
     'subSubjects': () => {
         const id = subjectStore.subjectsById[route.params.subjectId]?.yearId
-        return id ? `/subjects/${id}` : '/' 
-    }, 
+        return id ? `/subjects/${id}` : '/'
+    },
     'grades': () => {
         let id = subjectStore.subjectsById[route.params.subjectId]?.yearId
         if (id) return `/subjects/${id}`
@@ -173,4 +175,3 @@ function goBack() {
 }
 
 </script>
-    

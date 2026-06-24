@@ -17,7 +17,7 @@
 
                     <div class="flex gap-2 mt-3">
                         <button @click="dismiss"
-                                class="flex-1 py-2 rounded-xl bg-zinc-100 text-zinc-600 text-[13px] font-medium active:bg-zinc-200">
+                                class="flex-1 py-2.5 rounded-xl bg-primary/10 text-primary text-[13px] font-medium active:bg-primary/20 transition-colors">
                             Got it
                         </button>
                     </div>

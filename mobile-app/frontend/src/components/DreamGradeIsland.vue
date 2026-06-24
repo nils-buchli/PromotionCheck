@@ -10,7 +10,7 @@
           <div
             v-if="isOpen"
             @click.stop
-            class="bg-zinc-50 rounded-3xl shadow-lg w-full mx-4 max-w-sm overflow-hidden"
+            class="bg-zinc-50 rounded-2xl shadow-lg w-full mx-5 max-w-sm overflow-hidden"
           >
             <!-- Header -->
             <div class="px-5 pt-5 pb-2">
@@ -20,20 +20,22 @@
             <!-- Fields -->
             <div class="px-5 pb-2">
 
-              <!-- Wunschdurchschnitt -->
+              <!-- Dream average -->
               <div class="mt-3">
-                <p class="text-[11px] font-semibold text-zinc-400 uppercase tracking-widest mb-2 px-1">Dream-average</p>
+                <label for="dream-avg" class="text-[11px] font-semibold text-zinc-400 uppercase tracking-widest mb-2 px-1 block">Dream-average</label>
                 <div class="bg-white rounded-2xl border border-zinc-200 overflow-hidden focus-within:border-zinc-400 transition-colors">
                   <input
+                    id="dream-avg"
                     v-model.number="form.dreamAvg"
                     type="number"
+                    inputmode="decimal"
                     step="0.1"
                     min="1"
                     max="6"
                     placeholder="Grade"
                     @blur="touched.dreamAvg = true"
                     :class="[
-                      'w-full px-4 py-3.5 text-[15px] bg-transparent focus:outline-none placeholder:text-zinc-300',
+                      'w-full px-4 py-3.5 text-base bg-transparent focus:outline-none placeholder:text-zinc-300',
                       isDreamAvgInvalid ? 'text-red-500' : 'text-zinc-900'
                     ]"
                   />
@@ -41,24 +43,27 @@
                 <p
                   class="text-[11px] text-red-400 mt-1.5 px-1 transition-opacity duration-150"
                   :class="isDreamAvgInvalid ? 'opacity-100' : 'opacity-0'"
+                  role="alert"
                 >
                   Please enter your dream-average.
                 </p>
               </div>
 
-              <!-- Gewichtung -->
+              <!-- Weight -->
               <div class="mt-1">
-                <p class="text-[11px] font-semibold text-zinc-400 uppercase tracking-widest mb-2 px-1">Weight</p>
+                <label for="dream-weight" class="text-[11px] font-semibold text-zinc-400 uppercase tracking-widest mb-2 px-1 block">Weight</label>
                 <div class="bg-white rounded-2xl border border-zinc-200 overflow-hidden focus-within:border-zinc-400 transition-colors">
                   <input
+                    id="dream-weight"
                     v-model.number="form.weight"
                     placeholder="Weight"
                     type="number"
+                    inputmode="decimal"
                     step="0.5"
                     min="0"
                     @blur="touched.weight = true"
                     :class="[
-                      'w-full px-4 py-3.5 text-[15px] bg-transparent focus:outline-none placeholder:text-zinc-300',
+                      'w-full px-4 py-3.5 text-base bg-transparent focus:outline-none placeholder:text-zinc-300',
                       isWeightInvalid ? 'text-red-500' : 'text-zinc-900'
                     ]"
                   />
@@ -66,12 +71,13 @@
                 <p
                   class="text-[11px] text-red-400 mt-1.5 px-1 transition-opacity duration-150"
                   :class="isWeightInvalid ? 'opacity-100' : 'opacity-0'"
+                  role="alert"
                 >
                   Please enter a weight.
                 </p>
               </div>
 
-              <!-- Benötigte Note -->
+              <!-- Required grade result -->
               <div class="mt-4 bg-white rounded-2xl border border-zinc-200 px-4 py-3.5 flex items-center justify-between">
                 <p class="text-[11px] font-semibold text-zinc-400 uppercase tracking-widest">Required grade</p>
                 <span
@@ -89,7 +95,6 @@
               <button
                 @click="close"
                 class="flex-1 py-3.5 rounded-2xl border border-zinc-200 bg-zinc-100 active:bg-zinc-200 text-zinc-500 text-[15px] font-medium transition-colors duration-150"
-                style="-webkit-tap-highlight-color: transparent;"
               >
                 Close
               </button>

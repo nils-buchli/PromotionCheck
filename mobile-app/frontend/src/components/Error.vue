@@ -18,7 +18,7 @@
             <button
                 type="button"
                 @click="backToHome"
-                class="w-full bg-zinc-900 active:bg-zinc-700 text-white text-[15px] font-medium rounded-2xl py-3.5 transition-colors duration-150"
+                class="w-full bg-primary active:bg-primary-dark text-white text-[15px] font-medium rounded-2xl py-3.5 transition-colors duration-150"
                 style="-webkit-tap-highlight-color: transparent;"
             >
                 Back to Home
