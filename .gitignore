@@ -1,0 +1,74 @@
+# .gitignore for PromotionCheck
+
+# ---- Secrets ----
+*.jks
+*.keystore
+*.p12
+*.pem
+*.key
+keystore.properties
+.env
+.env.*
+!.env.example
+
+# ---- Node ----
+node_modules/
+.npm
+*.tsbuildinfo
+
+# ---- Build output ----
+dist/
+dist-ssr/
+build/
+*.local
+
+# ---- Python ----
+venv/
+.venv/
+env/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+instance/
+
+# ---- Android / Capacitor ----
+.gradle/
+local.properties
+captures/
+.externalNativeBuild/
+.cxx/
+*.apk
+*.aab
+*.aar
+*.ap_
+*.dex
+*.hprof
+google-services.json
+capacitor-cordova-android-plugins/
+# the generated Capacitor assets are handled by mobile-app/frontend/android/.gitignore
+
+# ---- Logs ----
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ---- Editors and OS ----
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.iml
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ---- Tooling ----
+.claude/

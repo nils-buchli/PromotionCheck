@@ -18,10 +18,10 @@
 [x] export to file 
 [x] icon
 [x] improve icon 
-[] apk 
+[x] apk 
 [x] css in files (RemovingPanel, ListElement, DreamgradeIsland, BottomBar)
 [x] Notifications to all Users 
-[] Extend how to? 
+[x] Extend how to? 
 [x] Solve 0 weight problem
 [x] no impact if weight 0 
 [x] Solve del user problem

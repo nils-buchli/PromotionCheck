@@ -1,5 +1,14 @@
 apply plugin: 'com.android.application'
 
+// Signing config is read from keystore.properties, which is not in git.
+// Copy keystore.properties.example and fill in your own values to build a release.
+def keystorePropertiesFile = file("keystore.properties")
+def keystoreProperties = new Properties()
+def hasKeystore = keystorePropertiesFile.exists()
+if (hasKeystore) {
+    keystorePropertiesFile.withInputStream { keystoreProperties.load(it) }
+}
+
 android {
     namespace = "com.promotioncheck.app"
     compileSdk = rootProject.ext.compileSdkVersion
@@ -18,15 +27,19 @@ android {
     }
     signingConfigs {
         release {
-            storeFile file("promotioncheck-release-key.jks")
-            storePassword "REMOVED_OLD_KEYSTORE_PASSWORD"
-            keyAlias "promotioncheck-key-alias"
-            keyPassword "REMOVED_OLD_KEYSTORE_PASSWORD"
+            if (hasKeystore) {
+                storeFile file(keystoreProperties['storeFile'])
+                storePassword keystoreProperties['storePassword']
+                keyAlias keystoreProperties['keyAlias']
+                keyPassword keystoreProperties['keyPassword']
+            }
         }
     }
     buildTypes {
         release {
-            signingConfig signingConfigs.release
+            if (hasKeystore) {
+                signingConfig signingConfigs.release
+            }
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
