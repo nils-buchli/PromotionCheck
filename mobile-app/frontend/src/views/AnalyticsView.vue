@@ -119,8 +119,8 @@
     const SUMMARY_COLORS = ['#2a78d6', '#eb6834', '#1baf7a', '#eda100', '#e87ba4', '#008300', '#6250d6', '#e34948']
 
     // Summary area: below every line its own color, until the next line below it or the bottom.
-    // Lines cross, so the chart is cut into strips (at every test and every crossing) and in each
-    // strip the areas are painted top line first, lowest line last. Painted opaque on a scratch
+    // Lines cross, so the chart is cut into strips (at every point of any line and every crossing) and
+    // in each strip the areas are painted top line first, lowest line last. Painted opaque on a scratch
     // canvas, then laid over the chart with the same alpha as the single year fill (0.08).
     const summaryFillCanvas = document.createElement('canvas')
     const summaryFillPlugin = {
@@ -134,15 +134,15 @@
                 }
             }
 
-            const borders = new Set(metas.flatMap(m => m.data.map(p => p.x)))
-            for (let i = 0; i < metas.length; i++) for (let j = i + 1; j < metas.length; j++) {
-                const a = metas[i].data, b = metas[j].data
-                for (let k = 0; k < Math.min(a.length, b.length) - 1; k++) {
-                    const d0 = a[k].y - b[k].y, d1 = a[k + 1].y - b[k + 1].y
-                    if (d0 * d1 < 0) borders.add(a[k].x + (a[k + 1].x - a[k].x) * d0 / (d0 - d1))
-                }
+            // between two neighbouring points (of any line) every line is straight, so a crossing is a sign change
+            const points = [...new Set(metas.flatMap(m => m.data.map(p => p.x)))].sort((a, b) => a - b)
+            const xs = [...points]
+            for (let s = 0; s < points.length - 1; s++) for (let i = 0; i < metas.length; i++) for (let j = i + 1; j < metas.length; j++) {
+                const d0 = yAt(metas[i], points[s]) - yAt(metas[j], points[s])
+                const d1 = yAt(metas[i], points[s + 1]) - yAt(metas[j], points[s + 1])
+                if (d0 * d1 < 0) xs.push(points[s] + (points[s + 1] - points[s]) * d0 / (d0 - d1))
             }
-            const xs = [...borders].sort((a, b) => a - b)
+            xs.sort((a, b) => a - b)
 
             const dpr  = chart.currentDevicePixelRatio
             const off  = summaryFillCanvas
@@ -222,11 +222,6 @@
 
         const values = summary ? summaryYears.value.flatMap(y => y.averages.map(a => a.average)) : averages.map(a => a.average)
 
-        // Summary: x-axis is the test number (1..n) instead of the date
-        const labels = summary
-            ? Array.from({ length: Math.max(...summaryYears.value.map(y => y.averages.length)) }, (_, i) => i + 1)
-            : averages.map(a => a.date)
-
         const yMin = Math.min(...values) - 0.1
         const yMax = Math.max(...values) + 0.1
 
@@ -235,10 +230,11 @@
             type: 'line',
             plugins: summary ? [summaryFillPlugin] : [],
             data: {
-                labels: labels,
+                labels: averages.map(a => a.date),
                 datasets: summary ? summaryYears.value.map(y => ({
                     label: y.year.name,
-                    data: y.averages.map(a => a.average),
+                    // Summary: every year is stretched over the full width (x from 0 to 1), more tests = more detail
+                    data: y.averages.map((a, i) => ({ x: i / (y.averages.length - 1), y: a.average })),
                     borderColor: y.color,
                     borderWidth: 2.5,
                     fill: false, // area is drawn by summaryFillPlugin
@@ -273,7 +269,7 @@
                 },
                 interaction: {
                     intersect: false,
-                    mode: 'index'
+                    mode: summary ? 'nearest' : 'index'
                 },
                 plugins: {
                     legend: {
@@ -299,10 +295,12 @@
                         }
                     },
                     x: {
+                        ...(summary ? { type: 'linear', min: 0, max: 1 } : {}),
                         grid: {
                             display: false
                         },
                         ticks: {
+                            display: !summary,
                             color: '#a1a1a1',
                             font: {
                                 size: 9
@@ -310,8 +308,8 @@
                             padding: 2,
 
                             callback: function(value, index) {
-                                const step = Math.ceil(labels.length / 6)
-                                return index % step === 0 ? labels[index] : ''
+                                const step = Math.ceil(averages.length / 6)
+                                return index % step === 0 ? averages[index].date : ''
                             }
                         }
                     }
