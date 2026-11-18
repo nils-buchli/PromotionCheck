@@ -118,6 +118,67 @@
     const SUMMARY        = 'summary'
     const SUMMARY_COLORS = ['#2a78d6', '#eb6834', '#1baf7a', '#eda100', '#e87ba4', '#008300', '#6250d6', '#e34948']
 
+    // Summary area: below every line its own color, until the next line below it or the bottom.
+    // Lines cross, so the chart is cut into strips (at every test and every crossing) and in each
+    // strip the areas are painted top line first, lowest line last. Painted opaque on a scratch
+    // canvas, then laid over the chart with the same alpha as the single year fill (0.08).
+    const summaryFillCanvas = document.createElement('canvas')
+    const summaryFillPlugin = {
+        id: 'summaryFill',
+        beforeDatasetsDraw(chart) {
+            const metas = chart.data.datasets.map((_, i) => chart.getDatasetMeta(i))
+            const yAt = (m, x) => {
+                const p = m.data
+                for (let k = 0; k < p.length - 1; k++) {
+                    if (x >= p[k].x && x <= p[k + 1].x) return p[k].y + (p[k + 1].y - p[k].y) * (x - p[k].x) / (p[k + 1].x - p[k].x)
+                }
+            }
+
+            const borders = new Set(metas.flatMap(m => m.data.map(p => p.x)))
+            for (let i = 0; i < metas.length; i++) for (let j = i + 1; j < metas.length; j++) {
+                const a = metas[i].data, b = metas[j].data
+                for (let k = 0; k < Math.min(a.length, b.length) - 1; k++) {
+                    const d0 = a[k].y - b[k].y, d1 = a[k + 1].y - b[k + 1].y
+                    if (d0 * d1 < 0) borders.add(a[k].x + (a[k + 1].x - a[k].x) * d0 / (d0 - d1))
+                }
+            }
+            const xs = [...borders].sort((a, b) => a - b)
+
+            const dpr  = chart.currentDevicePixelRatio
+            const off  = summaryFillCanvas
+            off.width  = chart.canvas.width
+            off.height = chart.canvas.height
+            const octx = off.getContext('2d')
+
+            for (let s = 0; s < xs.length - 1; s++) {
+                const mid   = (xs[s] + xs[s + 1]) / 2
+                const order = metas.filter(m => yAt(m, mid) !== undefined).sort((a, b) => yAt(a, mid) - yAt(b, mid))
+
+                octx.save()
+                octx.beginPath()
+                octx.rect(Math.round(xs[s] * dpr), 0, Math.round(xs[s + 1] * dpr) - Math.round(xs[s] * dpr), off.height)
+                octx.clip()
+                octx.setTransform(dpr, 0, 0, dpr, 0, 0)
+                for (const m of order) {
+                    octx.beginPath()
+                    m.dataset.path(octx)
+                    octx.lineTo(m.data[m.data.length - 1].x, chart.chartArea.bottom)
+                    octx.lineTo(m.data[0].x, chart.chartArea.bottom)
+                    octx.closePath()
+                    octx.fillStyle = m.dataset.options.borderColor
+                    octx.fill()
+                }
+                octx.restore()
+            }
+
+            chart.ctx.save()
+            chart.ctx.setTransform(1, 0, 0, 1, 0, 0)
+            chart.ctx.globalAlpha = 0.08
+            chart.ctx.drawImage(off, 0, 0)
+            chart.ctx.restore()
+        }
+    }
+
     const hasMultipleYears = computed(() => yearStore.years.length > 1)
 
     const storedYearId   = globalStateStore.selectedAnalyticsYearId
@@ -172,16 +233,20 @@
         const ctx = chartRef.value.getContext('2d')
         chartInstance = new Chart(ctx, {
             type: 'line',
+            plugins: summary ? [summaryFillPlugin] : [],
             data: {
                 labels: labels,
                 datasets: summary ? summaryYears.value.map(y => ({
                     label: y.year.name,
                     data: y.averages.map(a => a.average),
                     borderColor: y.color,
-                    borderWidth: 2,
-                    fill: false,
+                    borderWidth: 2.5,
+                    fill: false, // area is drawn by summaryFillPlugin
                     tension: 0.1,
                     pointRadius: 0,
+                    pointBackgroundColor: y.color,
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 0,
                     pointHoverRadius: 4,
                     pointHoverBackgroundColor: y.color
                 })) : [{
@@ -236,15 +301,6 @@
                     x: {
                         grid: {
                             display: false
-                        },
-                        title: {
-                            display: summary,
-                            text: 'Test no.',
-                            color: '#a1a1a1',
-                            font: {
-                                size: 9
-                            },
-                            padding: 0
                         },
                         ticks: {
                             color: '#a1a1a1',
